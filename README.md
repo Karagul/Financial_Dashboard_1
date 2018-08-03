@@ -5,6 +5,7 @@ Bootcamp final project. Python/Django version of a financial dashboard I once ma
 * Python 3.6.5
 * Django 2.0.7
 * Bootstrap (django-bootstrap 10.0.1)
+* PostgreSQL
 
 # Author
 Bartosz Wójcik
