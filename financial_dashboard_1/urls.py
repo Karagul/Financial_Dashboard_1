@@ -13,16 +13,27 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, re_path
 from dashapp.views import (
     HomePageView,
-    TestTableView,
-    TestFormView
+    RevenuesView,
+    TestFormView,
+    LoginView,
+    RegistrationView,
+    EmployeePanelView
 )
+
+# Adresy widoków trzeba zmodyfikować tak, aby uwzględniały id firmy?
 
 urlpatterns = [
     re_path(r"^$", HomePageView.as_view(), name="home"),
-    re_path(r"^test_table$", TestTableView.as_view(), name="test_table"),
+    re_path(r"^revenues$", RevenuesView.as_view(), name="revenues"),
     re_path(r"^test_form$", TestFormView.as_view(), name="test_form"),
+    path("login", LoginView.as_view(), name="login"),
+    path("registration", RegistrationView.as_view(), name="registration"),
+    path("panel", EmployeePanelView.as_view(), name="employee-panel")
 ]
+
+

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load bootstrap3 %}
+
+{% include 'menu non-home.html' %}
+
+{% block title %}Przychody{% endblock %}
+
+{% block content %}
+    <div class="container">
+        Tu powinny być filtry
+    </div>
+    <div class="container">
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Nazwa 1</th>
+                    <th>Nazwa 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for document in revenues %}
+                    {% include 'table/row.html' %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button type="button" class="btn btn-primary">Dodaj przychód</button>
+{% endblock %}
