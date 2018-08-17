@@ -16,7 +16,7 @@ class Revenue(models.Model):
     expected_payment_date = models.DateField(null=True)
     settlement_status = models.BooleanField(default=False)
     payment_expectation = models.DecimalField(max_digits=3, decimal_places=2, null=True)   # Ewentualnie przerobić na small integer?
-    gross_amount_foreign = models.DecimalField(max_digits=8, decimal_places=2)
+    net_amount_foreign = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.ForeignKey("Currency", on_delete=models.PROTECT, default=1)
     country = models.ForeignKey("Country", on_delete=models.PROTECT, default=1)
     exchange_rate = models.DecimalField(max_digits=7, decimal_places=4, default=1)
@@ -33,7 +33,7 @@ class Cost(models.Model):
     payment_deadline = models.DateField(null=True)
     expected_payment_date = models.DateField(null=True)
     country = models.ForeignKey("Country", on_delete=models.PROTECT, default=1)
-    gross_amount = models.DecimalField(max_digits=8, decimal_places=2)
+    net_amount = models.DecimalField(max_digits=8, decimal_places=2)
     vat_rate = models.DecimalField(max_digits=4, decimal_places=2, default=23)
     settlement_status = models.BooleanField()
 

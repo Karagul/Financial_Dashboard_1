@@ -23,10 +23,9 @@
     </head>
     <body>
         {% block bootstrap3_content %}
+        {% include 'navbar.html' %}
             <div class="container">
                 <h1>{% block title %}(no title){% endblock %}</h1>
-
-                {% include 'menu non-home.html' %}
 
                 {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
 

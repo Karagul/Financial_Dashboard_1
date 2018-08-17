@@ -32,3 +32,17 @@ class RegistrationView(TemplateView):
 
 class EmployeePanelView(TemplateView):
     template_name = "employee_panel.html"
+
+class IncomeStatementView(TemplateView):
+    # ToDo: Currently counts total revenues
+    template_name = "income_statement.html"
+
+    # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
+    revenue_data = Revenue.objects.all()
+    total_net_revenues = 0
+    # ToDo: Zaokrąglić
+    for revenue in revenue_data:
+        total_net_revenues += revenue.net_amount_foreign * revenue.exchange_rate
+
+    def get_context_data(self, **kwargs):
+        return {"total_net_revenues" : self.total_net_revenues}
