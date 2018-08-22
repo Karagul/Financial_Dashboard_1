@@ -1,8 +1,10 @@
 from django.db import models
 
-# Zastanowić się gdzie dać null true
+# ToDo: Zastanowić się gdzie dać null true
 
-# W niektórych modelach może trzeba będzie dodać firmę, do której należy element - by później ograniczyć wyświetlanie i modyfikację
+# ToDo: W niektórych modelach może trzeba będzie dodać firmę, do której należy element - by później ograniczyć wyświetlanie i modyfikację
+
+# Teoretycznie można rozdzielić zdarzenie od dokumentu, tworząc dwa modele z powiązaniem 1-do-1. Ale czy to ma sens?
 
 class Revenue(models.Model):
     customer = models.ForeignKey("Customer", on_delete=models.PROTECT)
@@ -21,6 +23,10 @@ class Revenue(models.Model):
     country = models.ForeignKey("Country", on_delete=models.PROTECT, default=1)
     exchange_rate = models.DecimalField(max_digits=7, decimal_places=4, default=1)
     vat_rate = models.DecimalField(max_digits=4, decimal_places=2, default=23)
+
+    # ToDo: Prepare this:
+    # @property
+    # def gross_amount
 
 class Cost(models.Model):
     name = models.CharField(max_length=120)
@@ -58,7 +64,7 @@ class PaymentType(models.Model):
 
 class Project(models.Model):
     signature = models.CharField(max_length=80)
-    project_start = models.DateField(null=True)     # Wywalić null true po testach?
+    project_start = models.DateField(null=True)     # ToDo: Wywalić null true po testach?
 
 class Currency(models.Model):
     abbreviation = models.CharField(max_length=5)

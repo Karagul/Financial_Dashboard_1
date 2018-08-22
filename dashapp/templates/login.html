@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}
+     Log in to your account
+{% endblock %}
+{% block content %}
+
+<div class="container grey-cont">
+    {% if error %}
+        {% bootstrap_alert error alert_type="danger" %}
+    {% endif %}
+    <span>Don't have an account? <a href="#">Sign Up Here</a></span>
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% bootstrap_button "Log in" button_type="submit" button_class="btn-primary" %}
+        {% bootstrap_button "Reset" button_type="reset" button_class="btn-default" %}
+    </form>
+    <span>Forgot username or password? <a href="#">Recover password here</a>.</span>
+</div>
+{% endblock %}

@@ -23,23 +23,27 @@ from dashapp.views import (
     LoginView,
     RegistrationView,
     EmployeePanelView,
-    IncomeStatementView
+    IncomeStatementView,
+    logout_view
 )
 
-# Adresy widoków trzeba zmodyfikować tak, aby uwzględniały id firmy?
+# ToDo: Adresy widoków trzeba zmodyfikować tak, aby uwzględniały id firmy?
+# ToDo: Na koniec uporządkować tą listę
 
 urlpatterns = [
     re_path(r"^$", HomePageView.as_view(), name="home"),
     re_path(r"^revenues$", RevenuesView.as_view(), name="revenues"),
     re_path(r"^test_form$", TestFormView.as_view(), name="test_form"),
-    path("login", LoginView.as_view(), name="login"),
     path("registration", RegistrationView.as_view(), name="registration"),
     path("panel", EmployeePanelView.as_view(), name="employee-panel"),
     re_path(
         r"^income_statement$",
         IncomeStatementView.as_view(),
         name="income-statement"
-    )
+    ),
+    re_path(r"^login/$", LoginView.as_view(), name="login"),
+    re_path(r"^logout/$", logout_view, name="logout")
+
 ]
 
 

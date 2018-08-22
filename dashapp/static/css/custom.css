@@ -1,13 +1,48 @@
-body {
-  padding-top: 65px;
+html {
+    height: 100%;
 }
+
+body {
+    height: 100%;
+    padding-top: 65px;
+    display: flex;
+    flex-direction: column;
+
+}
+
+.body-content {
+    flex: 1 0 auto;
+}
+
+/* Menu style */
 
 .menu-right-part a {
     color: red;
 }
 
+.navbar-right {
+    padding-right: 20px;
+}
+
+/* Table styles */
+
 .revenue-row:hover {
     cursor: pointer;
+}
+
+/* Footer style */
+
+.page-footer {
+    background-color: #eee;
+}
+
+.footer-copyright {
+    background-color: #5cb85c;
+}
+
+.footer {
+    margin-top: 30px;
+    flex-shrink: 0;
 }
 
 /*Cards from Bootstrap 4 Modified!*/
