@@ -20,10 +20,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'home' %}">Home</a>
                 </li>
+                {% if request.user.is_authenticated == True %}
                 <li class="nav-item">
                     <a class="nav-link"
-                       href="{% url 'employee-panel' %}">Dashboard</a>
+                       href="{% url 'main-panel' request.user.companymember.company.id %}">Dashboard</a>
                 </li>
+                {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#"
                        role="button" data-toggle="dropdown"
@@ -31,15 +33,19 @@
                         Data
                         <span class="caret"></span>
                     </a>
+
                     <ul class="dropdown-menu">
+                        {% if request.user.is_authenticated == True %}
                         <li><a class="dropdown-item"
-                               href="{% url 'revenues' %}">Revenues</a></li>
+                               href="{% url 'revenues' pk=request.user.companymember.company.id %}">Revenues</a></li>
+                        {% endif %}
                         <li><a class="dropdown-item" href="#">Another
                             action</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a class="dropdown-item" href="#">Something else
                             here</a></li>
                     </ul>
+
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#"
@@ -48,28 +54,44 @@
                         Executive Data
                         <span class="caret"></span>
                     </a>
+
                     <ul class="dropdown-menu">
+                        {% if request.user.is_authenticated == True %}
                         <li><a class="dropdown-item"
-                               href="{% url 'income-statement' %}">Income
+                               href="{% url 'income-statement' pk=request.user.companymember.company.id %}">Income
                             Statement</a></li>
+                        {% endif %}
                         <li><a class="dropdown-item" href="#">Another
                             action</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a class="dropdown-item" href="#">Something else
                             here</a></li>
                     </ul>
+
                 </li>
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <button type="button" class="btn btn-primary navbar-btn"
-                        data-toggle="modal" data-target="#login-modal">
-                    Log in
-                </button>
-                <button type="button" class="btn btn-primary navbar-btn"
-                        data-toggle="modal" data-target="#register-modal">
-                    Sign up
-                </button>
+                {% if request.user.is_authenticated == False %}
+                    <button type="button" class="btn btn-primary navbar-btn"
+                            data-toggle="modal" data-target="#login-modal">
+                        Log in
+                    </button>
+                    <a role="button" class="btn btn-primary navbar-btn"
+                            href="{% url 'registration' %}">
+                        Sign up
+                    </a>
+                {% else %}
+                    <span>
+                        {{request.user.first_name}}
+                        {{request.user.last_name}},
+                        {{request.user.companymember.company.name}}
+                    </span>
+                    <a role="button" class="btn btn-default navbar-btn"
+                            href="{% url 'logout' %}">
+                        Log out
+                    </a>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -100,30 +122,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary"
                         data-dismiss="modal">Close
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="register-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Register</h5>
-                <button type="button" class="close" data-dismiss="modal"
-                        aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Modal body text goes here.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"
-                        data-dismiss="modal">Close
-                </button>
-                <button type="button" class="btn btn-primary">Save changes
                 </button>
             </div>
         </div>

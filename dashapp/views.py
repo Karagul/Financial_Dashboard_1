@@ -1,10 +1,16 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User, Group
+from django.http import request
 from django.shortcuts import render, redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
+from django.views import View
 from django.views.generic import TemplateView, FormView
-from dashapp.forms import TestForm1, LoginForm
-from dashapp.models import Revenue, Cost, Employee, Customer, Procedure,\
-    Country, PaymentType, Project, Currency, CostCategory
+from dashapp.forms import LoginForm, UserRegisterForm, CompanyRegisterForm
+from dashapp.models import Revenue, Cost, Employee, Customer, Procedure, \
+    Country, PaymentType, Project, Currency, CostCategory, Company, \
+    CompanyMember
 
 
 # Main views
@@ -14,11 +20,11 @@ class HomePageView(TemplateView):
 
 
 class LoginView(FormView):
-    # Alternatywnie modal?
     template_name = "login.html"
     form_class = LoginForm
     # ToDo: should send user back to main page? Or to the panel perhaps?
-    success_url = reverse_lazy("home")
+    success_url = ""
+    # success_url = reverse_lazy("main-panel", kwargs=request.user.companymember.company.id)
 
     def form_valid(self, form):
         user = authenticate(
@@ -27,13 +33,16 @@ class LoginView(FormView):
         )
         if user is not None:
             login(self.request, user)
+            self.success_url = reverse_lazy(
+                "main-panel", kwargs={"pk": user.companymember.company.id}
+            )
             return super(LoginView, self).form_valid(form)
 
         else:
             return self.render_to_response(self.get_context_data(
                 form=form,
                 error="No user exists with that username."
-            ))
+            )), user
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(
@@ -43,20 +52,86 @@ class LoginView(FormView):
 
 def logout_view(request):
     logout(request)
-    return redirect(reverse("/"))
+    return redirect(reverse("home"))
 
 
-class RegistrationView(TemplateView):
-    template_name = ""
+class MainRegistrationView(View):
+    def get(self, request):
+        return TemplateResponse(
+            request, "registration.html", {
+                "form_company": CompanyRegisterForm,
+                "form_manager": UserRegisterForm
+            }
+        )
+
+    def post(self, request):
+        form_company = CompanyRegisterForm(request.POST)
+        form_manager = UserRegisterForm(request.POST)
+        if form_company.is_valid() and form_manager.is_valid():
+
+            # Check if passwords match each other
+            if form_manager.cleaned_data["password"]\
+                != form_manager.cleaned_data["password_repeated"]:
+                return TemplateResponse(
+                    request, "registration.html", {
+                        "form_company": form_company,
+                        "form_manager": form_manager,
+                        "error": "Passwords do not match."
+                    }
+                )
+
+            # Create a new company
+            new_company = form_company.save()
+
+            # Create a new manager-user
+            new_user = User.objects.create_user(
+                username=form_manager.cleaned_data["username"],
+                password=form_manager.cleaned_data["password"],
+                email=form_manager.cleaned_data["email"],
+                first_name=form_manager.cleaned_data["first_name"],
+                last_name=form_manager.cleaned_data["last_name"],
+            )
+            CompanyMember.objects.create(
+                company=new_company,
+                user=new_user
+            )
+
+            # Create a new group for this company, using its tax_no
+            new_group = Group.objects.create(
+                name=("company_" + new_company.tax_no)
+            )
+            # ToDo: Check if current no-permission solution is sufficient.
+            # Employee needs only a company group. And manager the manager
+            # group and the company group
 
 
-class EmployeePanelView(TemplateView):
-    template_name = "employee_panel.html"
+            # Add user to groups
+            new_group.user_set.add(new_user)
+            Group.objects.get(pk=2).user_set.add(new_user)
+
+            # When done, hide groups in form
+
+
+            login(request, new_user)
+            return redirect(reverse("main-panel", kwargs={"pk": new_company.id}))
+        else:
+            return TemplateResponse(
+            request, "registration.html", {
+                "form_company": form_company,
+                "form_manager": form_manager
+            }
+        )
+
+
+
+class MainPanelView(LoginRequiredMixin, TemplateView):
+    template_name = "main_panel.html"
 
 
 # Employee views
+# ToDo: Some views could be ListViews?
 
-class RevenuesView(TemplateView):
+class RevenuesView(LoginRequiredMixin,TemplateView):
     # Tabela mogłaby wyświetlać tylko część danych, a reszta w popupie po naciśnięciu?
     template_name = "revenues.html"
 
@@ -66,7 +141,7 @@ class RevenuesView(TemplateView):
 
 # Manager views
 
-class IncomeStatementView(TemplateView):
+class IncomeStatementView(LoginRequiredMixin, TemplateView):
     # ToDo: Currently counts total revenues
     template_name = "income_statement.html"
 
@@ -75,14 +150,7 @@ class IncomeStatementView(TemplateView):
     total_net_revenues = 0
     # ToDo: Zaokrąglić
     for revenue in revenue_data:
-        total_net_revenues += revenue.net_amount_foreign * revenue.exchange_rate
+        total_net_revenues += revenue.net_amount_converted
 
     def get_context_data(self, **kwargs):
         return {"total_net_revenues" : self.total_net_revenues}
-
-
-# Test views
-
-class TestFormView(FormView):
-    template_name = "form.html"
-    form_class = TestForm1

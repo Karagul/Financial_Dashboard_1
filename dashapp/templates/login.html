@@ -10,7 +10,7 @@
     {% if error %}
         {% bootstrap_alert error alert_type="danger" %}
     {% endif %}
-    <span>Don't have an account? <a href="#">Sign Up Here</a></span>
+    <span>Don't have an account? <a href="{% url 'registration' %}">Sign Up Here</a></span>
     <form action="{% url 'login' %}" method="post">
         {% csrf_token %}
         {% bootstrap_form form %}

@@ -19,30 +19,43 @@ from django.urls import path, re_path
 from dashapp.views import (
     HomePageView,
     RevenuesView,
-    TestFormView,
     LoginView,
-    RegistrationView,
-    EmployeePanelView,
+    MainRegistrationView,
+    MainPanelView,
     IncomeStatementView,
     logout_view
 )
 
-# ToDo: Adresy widoków trzeba zmodyfikować tak, aby uwzględniały id firmy?
 # ToDo: Na koniec uporządkować tą listę
 
 urlpatterns = [
+
+    # Main views
+
+    re_path(r"^admin/", admin.site.urls),
     re_path(r"^$", HomePageView.as_view(), name="home"),
-    re_path(r"^revenues$", RevenuesView.as_view(), name="revenues"),
-    re_path(r"^test_form$", TestFormView.as_view(), name="test_form"),
-    path("registration", RegistrationView.as_view(), name="registration"),
-    path("panel", EmployeePanelView.as_view(), name="employee-panel"),
+
+    #Login/registration views
+
+    path("registration/", MainRegistrationView.as_view(), name="registration"),
+    re_path(r"^login/$", LoginView.as_view(), name="login"),
+    re_path(r"^logout/$", logout_view, name="logout"),
+
+    # Company-specific views
+
     re_path(
-        r"^income_statement$",
+        r"^(?P<pk>(\d)+)/main-panel/$",
+        MainPanelView.as_view(),
+        name="main-panel"
+    ),
+    re_path(
+        r"^(?P<pk>(\d)+)/revenues/$", RevenuesView.as_view(), name="revenues"
+    ),
+    re_path(
+        r"^(?P<pk>(\d)+)/income-statement/$",
         IncomeStatementView.as_view(),
         name="income-statement"
     ),
-    re_path(r"^login/$", LoginView.as_view(), name="login"),
-    re_path(r"^logout/$", logout_view, name="logout")
 
 ]
 

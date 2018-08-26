@@ -1,7 +1,5 @@
-from dashapp.forms import LoginForm, RegisterForm
+from dashapp.forms import LoginForm, CompanyRegisterForm, UserRegisterForm
+
 
 def global_login_form(request):
     return {"global_login_form": LoginForm}
-
-def global_register_form(request):
-    return {"global_register_form": RegisterForm}
