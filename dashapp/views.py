@@ -1,7 +1,7 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
-from django.http import request
+from django.http import request, HttpRequest
 from django.shortcuts import render, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
@@ -11,6 +11,7 @@ from dashapp.forms import LoginForm, UserRegisterForm, CompanyRegisterForm
 from dashapp.models import Revenue, Cost, Employee, Customer, Procedure, \
     Country, PaymentType, Project, Currency, CostCategory, Company, \
     CompanyMember
+from dashapp.mixins import GroupRequiredMixin
 
 
 # Main views
@@ -96,9 +97,9 @@ class MainRegistrationView(View):
                 user=new_user
             )
 
-            # Create a new group for this company, using its tax_no
+            # Create a new group for this company, using its pk
             new_group = Group.objects.create(
-                name=("company_" + new_company.tax_no)
+                name=("company_" + new_company.pk)
             )
             # ToDo: Check if current no-permission solution is sufficient.
             # Employee needs only a company group. And manager the manager
@@ -113,7 +114,9 @@ class MainRegistrationView(View):
 
 
             login(request, new_user)
-            return redirect(reverse("main-panel", kwargs={"pk": new_company.id}))
+            return redirect(
+                reverse("main-panel", kwargs={"pk": new_company.id})
+            )
         else:
             return TemplateResponse(
             request, "registration.html", {
@@ -141,7 +144,22 @@ class RevenuesView(LoginRequiredMixin,TemplateView):
 
 # Manager views
 
-class IncomeStatementView(LoginRequiredMixin, TemplateView):
+class IncomeStatementView(
+    LoginRequiredMixin, GroupRequiredMixin, TemplateView
+):
+
+    # Checks for employee-type group, the company group is checked within the
+    # custom mixin GroupRequiredMixin
+    group_required = ["Managers"]
+
+
+    # def get_group_required(self):
+    #     return self.request.user.companymember.company.id
+
+    # group_required = ["Managers", "company_" + request.user.companymember.company.id]
+
+
+
     # ToDo: Currently counts total revenues
     template_name = "income_statement.html"
 

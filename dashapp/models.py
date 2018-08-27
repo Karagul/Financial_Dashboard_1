@@ -41,7 +41,9 @@ class Company(models.Model):
 
 class Revenue(models.Model):
     customer = models.ForeignKey("Customer", on_delete=models.PROTECT)
-    employee = models.ForeignKey("Employee", on_delete=models.PROTECT, null=True)
+    employee = models.ForeignKey(
+        "Employee", on_delete=models.PROTECT, null=True
+    )
     payment_type = models.ForeignKey("PaymentType", on_delete=models.PROTECT)
     procedure = models.ForeignKey("Procedure", on_delete=models.PROTECT)
     document_date = models.DateField(null=True)
@@ -50,11 +52,19 @@ class Revenue(models.Model):
     project = models.ForeignKey("Project", on_delete=models.PROTECT)
     expected_payment_date = models.DateField(null=True)
     settlement_status = models.BooleanField(default=False)
-    payment_expectation = models.DecimalField(max_digits=3, decimal_places=2, null=True)   # Ewentualnie przerobić na small integer?
+    payment_expectation = models.DecimalField(
+        max_digits=3, decimal_places=2, null=True
+    )   # Ewentualnie przerobić na small integer?
     net_amount_foreign = models.DecimalField(max_digits=8, decimal_places=2)
-    currency = models.ForeignKey("Currency", on_delete=models.PROTECT, default=1)
-    country = models.ForeignKey("Country", on_delete=models.PROTECT, default=1)
-    exchange_rate = models.DecimalField(max_digits=7, decimal_places=4, default=1)
+    currency = models.ForeignKey(
+        "Currency", on_delete=models.PROTECT, default=1
+    )
+    country = models.ForeignKey(
+        "Country", on_delete=models.PROTECT, default=1
+    )
+    exchange_rate = models.DecimalField(
+        max_digits=7, decimal_places=4, default=1
+    )
     vat_rate = models.DecimalField(max_digits=4, decimal_places=2, default=23)
 
     company = models.ForeignKey("Company", on_delete=models.CASCADE)
@@ -140,4 +150,3 @@ class CostCategory(models.Model):
     name = models.CharField(max_length=80)
 
     # company = models.ForeignKey("Company", on_delete=models.CASCADE)
-

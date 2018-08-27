@@ -1,4 +1,4 @@
-from dashapp.forms import LoginForm, CompanyRegisterForm, UserRegisterForm
+from dashapp.forms import LoginForm
 
 
 def global_login_form(request):

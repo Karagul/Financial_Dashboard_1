@@ -35,7 +35,7 @@ urlpatterns = [
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^$", HomePageView.as_view(), name="home"),
 
-    #Login/registration views
+    # Login/registration views
 
     path("registration/", MainRegistrationView.as_view(), name="registration"),
     re_path(r"^login/$", LoginView.as_view(), name="login"),
@@ -58,5 +58,3 @@ urlpatterns = [
     ),
 
 ]
-
-
