@@ -3,7 +3,7 @@
 
 {% include 'menu non-home.html' %}
 
-{% block title %}Revenues{% endblock %}
+{% block title %}Costs{% endblock %}
 
 {% block content %}
     <div class="container">
@@ -13,24 +13,24 @@
         <table class="table">
             <thead class="thead-dark">
                 <tr>
-                    <th>Customer</th>
+                    <th>Expense name</th>
                     <th>Document</th>
                     <th>Project</th>
-                    <th>Net amount (conv.)</th>
+                    <th>Net amount</th>
                     <th>Payment status</th>
                     <th>Exp. Payment date</th>
                 </tr>
             </thead>
             <tbody>
-                {% for document in revenues %}
-                    {% include 'revenues/row.html' %}
+                {% for document in costs %}
+                    {% include 'costs/row.html' %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
     <button type="button" class="btn btn-primary navbar-btn"
                             data-toggle="modal" data-target="#revenue-modal">
-        Add a revenue
+        Add a cost
     </button>
 
 {# Modals go here #}
@@ -38,7 +38,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add a new revenue</h5>
+                <h5 class="modal-title">Add a new cost</h5>
                 <button type="button" class="close" data-dismiss="modal"
                         aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -47,7 +47,7 @@
             <div class="modal-body">
                 <form action="#" method="post">
                     {% csrf_token %}
-                    {% bootstrap_form revenue_form %}
+                    {% bootstrap_form cost_form %}
                     {% bootstrap_button "Submit" button_type="submit" button_class="btn-primary" %}
                 </form>
             </div>

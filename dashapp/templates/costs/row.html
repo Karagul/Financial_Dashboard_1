@@ -17,7 +17,11 @@
     </div>
   </div>
 </div>
-<tr class="revenue-row" data-toggle="modal" data-target="#{{document.id}}-modal">
+<tr class="costs-row table-row" data-toggle="modal" data-target="#{{document.id}}-modal">
+    <td>{{document.type_description}}</td>
     <td>{{document.document_id}}</td>
-    <td>Test 2</td>
+    <td>{{document.project}}</td>
+    <td>{{document.net_amount}}</td>
+    <td>{{document.settlement_status}}</td>
+    <td>{{document.expected_payment_date}}</td>
 </tr>

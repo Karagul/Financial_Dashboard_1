@@ -38,6 +38,11 @@ class Company(models.Model):
     )
     # ToDo: Tutaj potrzebny będzie walidator NIP
 
+    class Meta:
+        permissions = (
+            ("manager_access", "Access to manager features"),
+        )
+
 
 class Revenue(models.Model):
     customer = models.ForeignKey("Customer", on_delete=models.PROTECT)
@@ -108,17 +113,26 @@ class Employee(models.Model):
 
     company = models.ForeignKey("Company", on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
 
 class Customer(models.Model):
     name = models.CharField(max_length=120)
 
-    company = models.ForeignKey("Company", on_delete=models.CASCADE)
+    owner = models.ForeignKey("Company", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 
 class Procedure(models.Model):
     name = models.CharField(max_length=80)
 
-    company = models.ForeignKey("Company", on_delete=models.CASCADE)
+    owner = models.ForeignKey("Company", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 
 class Country(models.Model):
@@ -127,18 +141,27 @@ class Country(models.Model):
 
     # company = models.ForeignKey("Company", on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
 
 class PaymentType(models.Model):
     name = models.CharField(max_length=80)
 
-    company = models.ForeignKey("Company", on_delete=models.CASCADE)
+    owner = models.ForeignKey("Company", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 
 class Project(models.Model):
     signature = models.CharField(max_length=80)
     project_start = models.DateField(null=True)     # ToDo: Wywalić null true po testach?
 
-    company = models.ForeignKey("Company", on_delete=models.CASCADE)
+    owner = models.ForeignKey("Company", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.signature
 
 
 class Currency(models.Model):
@@ -146,7 +169,13 @@ class Currency(models.Model):
 
     # company = models.ForeignKey("Company", on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.abbreviation
+
 class CostCategory(models.Model):
     name = models.CharField(max_length=80)
 
     # company = models.ForeignKey("Company", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name

@@ -1,8 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User, Group
 from django.forms import ModelForm
-from dashapp.models import Company
-
+from dashapp.models import Company, Revenue, Cost
 
 # ToDo: Make additional validators, if needed. Labels, if needed. Widgets
 
@@ -54,3 +53,17 @@ class UserRegisterForm(ModelForm):
         "password",
         "password_repeated",
     )
+
+
+# Data forms
+
+class AddRevenueForm(ModelForm):
+    class Meta:
+        model = Revenue
+        fields = "__all__"
+
+
+class AddCostForm(ModelForm):
+    class Meta:
+        model = Cost
+        fields = "__all__"

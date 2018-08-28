@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'dashapp',
-    'bootstrap3'
+    'bootstrap3',
+    'guardian'
 ]
 
 MIDDLEWARE = [
@@ -190,3 +191,8 @@ BOOTSTRAP3 = {
 }
 
 LOGIN_URL = "/login"
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+    'guardian.backends.ObjectPermissionBackend',
+)

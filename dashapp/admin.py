@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from guardian.admin import GuardedModelAdmin
+
+# class ...(GuardedModelAdmin):
+#     pass
+#
+# admin.site.register(..., ...)

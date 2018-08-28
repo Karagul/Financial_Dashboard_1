@@ -23,7 +23,13 @@
                 {% if request.user.is_authenticated == True %}
                 <li class="nav-item">
                     <a class="nav-link"
-                       href="{% url 'main-panel' request.user.companymember.company.id %}">Dashboard</a>
+                       href="{% url 'main-dashboard' request.user.companymember.company.id %}">Dashboard</a>
+                </li>
+                {% endif %}
+                {% if perms.dashapp.manager_access %}
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{% url 'manager-dashboard' request.user.companymember.company.id %}">Manager Dashboard</a>
                 </li>
                 {% endif %}
                 <li class="nav-item dropdown">
@@ -38,6 +44,8 @@
                         {% if request.user.is_authenticated == True %}
                         <li><a class="dropdown-item"
                                href="{% url 'revenues' pk=request.user.companymember.company.id %}">Revenues</a></li>
+                        <li><a class="dropdown-item"
+                               href="{% url 'costs' pk=request.user.companymember.company.id %}">Costs</a></li>
                         {% endif %}
                         <li><a class="dropdown-item" href="#">Another
                             action</a></li>
@@ -47,6 +55,7 @@
                     </ul>
 
                 </li>
+                {% if perms.dashapp.manager_access %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#"
                        role="button" data-toggle="dropdown"
@@ -69,6 +78,7 @@
                     </ul>
 
                 </li>
+                {% endif %}
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
