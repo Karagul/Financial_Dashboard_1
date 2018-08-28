@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Sum
 from django.utils.decorators import method_decorator
 from guardian.decorators import permission_required_or_403
 from guardian.mixins import PermissionRequiredMixin
@@ -12,13 +13,66 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, FormView
 from dashapp.forms import LoginForm, UserRegisterForm, CompanyRegisterForm, \
-    AddRevenueForm
-from dashapp.models import Revenue, Cost, Employee, Customer, Procedure, \
-    Country, PaymentType, Project, Currency, CostCategory, Company, \
+    AddRevenueForm, EmployeeRegisterForm
+from dashapp.models import Revenue, Expense, Employee, Customer, Procedure, \
+    Country, PaymentType, Project, Currency, ExpenseCategory, Company, \
     CompanyMember
 from dashapp.mixins import GroupRequiredMixin
 from guardian.shortcuts import assign_perm, get_perms
+from datetime import date
 
+
+
+# ToDo: Maybe move those functions somewhere else?
+
+def revenue_calculator(company_id, start_date, end_date):
+     data = Revenue.objects.filter(
+        company=company_id,
+        document_date__gte=start_date,
+        document_date__lte=end_date
+        )
+     total = 0
+     for revenue in data:
+         total += revenue.net_amount_converted
+     return total
+
+def expense_calculator(company_id, start_date, end_date):
+    data = Expense.objects.filter(
+        company=company_id,
+        document_date__gte=start_date,
+        document_date__lte=end_date
+    )
+    total = 0
+    for revenue in data:
+        total += revenue.net_amount
+    return total
+
+def receipt_calculator(company_id, start_date, end_date):
+    data = Revenue.objects.filter(
+        company=company_id,
+        settlement_status=True,
+        expected_payment_date__gte=start_date,
+        expected_payment_date__lte=end_date,
+    )
+    total = 0
+    for receipt in data:
+        total += receipt.net_amount
+    return total
+
+def expenditure_calculator(company_id, start_date, end_date):
+    data = Expense.objects.filter(
+        company=company_id,
+        settlement_status=True,
+        expected_payment_date__gte=start_date,
+        expected_payment_date__lte=end_date,
+    )
+    total = 0
+    for expenditure in data:
+        total += expenditure.net_amount
+    return total
+
+
+# Views begin here
 
 class HomePageView(TemplateView):
     template_name = "home.html"
@@ -108,18 +162,10 @@ class MainRegistrationView(View):
             )
             assign_perm("view_company", new_group, new_company)     # ToDo: To jest chyba niepotrzebne
 
-            # ToDo: Check if current no-permission solution is sufficient.
-            # Employee needs only a company group. And manager the manager
-            # group and the company group
-
 
             # Add user to groups
-            # new_group.user_set.add(new_user)
             Group.objects.get(pk=2).user_set.add(new_user)
-            new_user.groups.add(new_group)          # ToDo: To jest chyba niepotrzebne
-
-            # When done, hide groups in form
-
+            # new_user.groups.add(new_group)          # ToDo: To jest chyba niepotrzebne
 
             login(request, new_user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect(
@@ -134,35 +180,150 @@ class MainRegistrationView(View):
         )
 
 
+class NewEmployeeRegistrationView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        return TemplateResponse(
+            request, "employee_registration.html", {
+                "form_employee": EmployeeRegisterForm
+            }
+        )
+
+    def post(self, request, pk):
+        form = EmployeeRegisterForm(request.POST)
+
+        if form.is_valid() and form.is_valid():
+
+            # Need to generate a password for user
+            password = "temporary"
+
+            # Create a new user
+            new_user = User.objects.create_user(
+                username=form.cleaned_data["username"],
+                password=password,
+                email=form.cleaned_data["email"],
+                first_name=form.cleaned_data["first_name"],
+                last_name=form.cleaned_data["last_name"],
+            )
+
+            CompanyMember.objects.create(
+                company=Company.objects.get(pk=pk),
+                user=new_user
+            )
+
+            # Add user to groups
+            Group.objects.get(pk=form.cleaned_data["group"]).user_set.add(new_user)
+
+            return redirect(
+                reverse("manager-dashboard",
+                        kwargs={"pk": pk})
+            )
+        else:
+            return TemplateResponse(
+                request, reverse("new-employee", kwargs={"pk": pk}), {
+                    "form_employee": form,
+                }
+        )
+
+
+# Dashboard views
 
 class MainDashboardView(LoginRequiredMixin, TemplateView):
     template_name = "main_dashboard.html"
 
 
-# Employee views
-# ToDo: Some views could be ListViews?
+    def get_context_data(self, **kwargs):
+        year_beginning = date(date.today().year, 1, 1)
+        year_end = date(date.today().year, 12, 31)
+        month_beginning = date(date.today().year, date.today().month, 1)
+
+        return {
+            # ToDo: Tu są bzdury, zmienić gdy będzie funkcja do obliczania
+            "current_month_revenue": revenue_calculator(
+                self.kwargs["pk"],
+                month_beginning,
+                year_end
+            ),
+            "last_month_revenue": revenue_calculator(
+                self.kwargs["pk"],
+                month_beginning,
+                year_end
+            ),
+            "annual_revenue": revenue_calculator(
+                self.kwargs["pk"],
+                year_beginning,
+                year_end
+            ),
+        }
+
 
 class ManagerDashboardView(LoginRequiredMixin, TemplateView):
     template_name = "manager_dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        year_beginning = date(date.today().year, 1, 1)
+        year_end = date(date.today().year, 12, 31)
+
+        revenues = revenue_calculator(
+                self.kwargs["pk"],
+                year_beginning,
+                year_end
+            )
+        expenses = expense_calculator(
+                self.kwargs["pk"],
+                year_beginning,
+                year_end
+            )
+        net = revenues - expenses
+
+        receipts = receipt_calculator(
+                self.kwargs["pk"],
+                year_beginning,
+                year_end
+            )
+
+        expenditures = expenditure_calculator(
+            self.kwargs["pk"],
+            year_beginning,
+            year_end
+        )
+
+        cash_change = receipts - expenditures
+
+        return {
+            "annual_revenue": revenues,
+            "annual_expenses": expenses,
+            "annual_net": net,
+            "annual_receipts": receipts,
+            "annual_expenditures": expenditures,
+            "annual_cash_change": cash_change
+        }
 
 class RevenuesView(LoginRequiredMixin,TemplateView):
     # Tabela mogłaby wyświetlać tylko część danych, a reszta w popupie po naciśnięciu?
     template_name = "revenues.html"
 
     def get_context_data(self, **kwargs):
+
+        # ToDo: To powinno wyświetlać ileśtam najnowszych + filtry
+
         return {
-            "revenues" : Revenue.objects.all().order_by("document_date"),
+            "revenues" : Revenue.objects.filter(
+                company=self.kwargs["pk"]
+            ).order_by("document_date"),
             "revenue_form": AddRevenueForm
         }
 
-class CostsView(LoginRequiredMixin, TemplateView):
+    # Form -> RevenueAddView (jak dla rejestracji i tam są błędy) -> Jeśli ok, to wraca na RevenuesView
+    # Revenue -> Modal
+
+class ExpensesView(LoginRequiredMixin, TemplateView):
     # Tabela mogłaby wyświetlać tylko część danych, a reszta w popupie po naciśnięciu?
-    template_name = "costs.html"
+    template_name = "expenses.html"
 
     def get_context_data(self, **kwargs):
         return {
-            "costs": Cost.objects.all().order_by("document_date"),
-            "cost_form": AddRevenueForm
+            "expenses": Expense.objects.all().order_by("document_date"),
+            "expense_form": AddRevenueForm
         }
 
 # Manager views
@@ -170,6 +331,7 @@ class CostsView(LoginRequiredMixin, TemplateView):
 class IncomeStatementView(
     LoginRequiredMixin, TemplateView
 ):
+    template_name = "income_statement.html"
 
     # change this dispatch into a decorator somehow?
     def dispatch(self, request, *args, **kwargs):
@@ -186,22 +348,22 @@ class IncomeStatementView(
                 request, *args, **kwargs
             )
         else:
-            return HttpResponseForbidden('You cannot view what is not yours')
+            return HttpResponseForbidden('Forbidden.')
 
-
-    # ToDo: Currently counts total revenues
-    template_name = "income_statement.html"
-
-    # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
-    revenue_data = Revenue.objects.all()
-    total_net_revenues = 0
-    # ToDo: Zaokrąglić
-    for revenue in revenue_data:
-        total_net_revenues += revenue.net_amount_converted
 
     def get_context_data(self, **kwargs):
+        # ToDo: Currently counts total revenues
+
+        # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
+
+        year_beginning = date(date.today().year, 1, 1)
+        year_end = date(date.today().year, 12, 31)
+        month_beginning = date(date.today().year, date.today().month, 1)
+
         return {
-            "total_net_revenues" : self.total_net_revenues
+            "total_net_revenues" : revenue_calculator(
+                self.kwargs["pk"], year_beginning, year_end
+            )
         }
 
 # Second path
@@ -265,3 +427,42 @@ class IncomeStatementView(
 #         return {
 #             "total_net_revenues" : self.total_net_revenues
 #         }
+
+class CashFlowView(
+    LoginRequiredMixin, TemplateView
+):
+    template_name = "cash_flow.html"
+
+    # change this dispatch into a decorator somehow?
+    def dispatch(self, request, *args, **kwargs):
+
+        user_groups = [
+            group for group in request.user.groups.values_list(
+                'name', flat=True
+            )
+        ]
+
+        if str(request.user.companymember.company.id) == self.kwargs["pk"]\
+                and "Managers" in user_groups:
+            return super(CashFlowView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
+
+
+    def get_context_data(self, **kwargs):
+        # ToDo: Currently counts total revenues
+
+        # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
+
+        year_beginning = date(date.today().year, 1, 1)
+        year_end = date(date.today().year, 12, 31)
+        month_beginning = date(date.today().year, date.today().month, 1)
+
+        return {
+
+        }
+
+class ModificationDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = "modification_dashboard.html"

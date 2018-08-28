@@ -18,14 +18,17 @@ from django.contrib import admin
 from django.urls import path, re_path
 from dashapp.views import (
     HomePageView,
+    CashFlowView,
     RevenuesView,
-    CostsView,
+    ExpensesView,
     LoginView,
     MainRegistrationView,
     MainDashboardView,
     ManagerDashboardView,
+    ModificationDashboardView,
     IncomeStatementView,
-    logout_view
+    logout_view,
+    NewEmployeeRegistrationView,
 )
 
 # ToDo: Na koniec uporządkować tą listę
@@ -45,26 +48,47 @@ urlpatterns = [
 
     # Company-specific views
 
+    # Employee views
+
     re_path(
         r"^(?P<pk>(\d)+)/main-dashboard/?$",
         MainDashboardView.as_view(),
         name="main-dashboard"
     ),
-re_path(
-        r"^(?P<pk>(\d)+)/manager-dashboard/?$",
-        ManagerDashboardView.as_view(),
-        name="manager-dashboard"
-    ),
     re_path(
         r"^(?P<pk>(\d)+)/revenues/?$", RevenuesView.as_view(), name="revenues"
     ),
     re_path(
-        r"^(?P<pk>(\d)+)/costs/?$", CostsView.as_view(), name="costs"
+        r"^(?P<pk>(\d)+)/expsenes/?$", ExpensesView.as_view(), name="expenses"
+    ),
+    re_path(
+        r"^(?P<pk>(\d)+)/company-settings/?$",
+        ModificationDashboardView.as_view(),
+        name="company-settings"
+    ),
+
+    # Manager views
+
+    re_path(
+        r"^(?P<pk>(\d)+)/manager-dashboard/?$",
+        ManagerDashboardView.as_view(),
+        name="manager-dashboard"
     ),
     re_path(
         r"^(?P<pk>(\d)+)/income-statement/?$",
         IncomeStatementView.as_view(),
         name="income-statement"
     ),
+    re_path(
+        r"^(?P<pk>(\d)+)/cash-flow/?$",
+        CashFlowView.as_view(),
+        name="cash-flow"
+    ),
+    re_path(
+        r"^(?P<pk>(\d)+)/new-employee/?$",
+        NewEmployeeRegistrationView.as_view(),
+        name="new-employee"
+    ),
+
 
 ]

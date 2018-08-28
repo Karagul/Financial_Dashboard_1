@@ -32,6 +32,7 @@
                        href="{% url 'manager-dashboard' request.user.companymember.company.id %}">Manager Dashboard</a>
                 </li>
                 {% endif %}
+                {% if request.user.is_authenticated == True %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#"
                        role="button" data-toggle="dropdown"
@@ -41,20 +42,20 @@
                     </a>
 
                     <ul class="dropdown-menu">
-                        {% if request.user.is_authenticated == True %}
+
                         <li><a class="dropdown-item"
                                href="{% url 'revenues' pk=request.user.companymember.company.id %}">Revenues</a></li>
                         <li><a class="dropdown-item"
-                               href="{% url 'costs' pk=request.user.companymember.company.id %}">Costs</a></li>
-                        {% endif %}
-                        <li><a class="dropdown-item" href="#">Another
-                            action</a></li>
+                               href="{% url 'expenses' pk=request.user.companymember.company.id %}">Expenses</a></li>
+
                         <li role="separator" class="divider"></li>
-                        <li><a class="dropdown-item" href="#">Something else
-                            here</a></li>
+                        <li><a class="dropdown-item" href="{% url 'company-settings' pk=request.user.companymember.company.id %}">Company Settings
+                            </a></li>
                     </ul>
 
+
                 </li>
+                {% endif %}
                 {% if perms.dashapp.manager_access %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#"
@@ -66,12 +67,19 @@
 
                     <ul class="dropdown-menu">
                         {% if request.user.is_authenticated == True %}
-                        <li><a class="dropdown-item"
-                               href="{% url 'income-statement' pk=request.user.companymember.company.id %}">Income
-                            Statement</a></li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'income-statement' pk=request.user.companymember.company.id %}">
+                                IncomeStatement
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               href="{% url 'cash-flow' pk=request.user.companymember.company.id %}">
+                                Cash Flow
+                            </a>
+                        </li>
                         {% endif %}
-                        <li><a class="dropdown-item" href="#">Another
-                            action</a></li>
                         <li role="separator" class="divider"></li>
                         <li><a class="dropdown-item" href="#">Something else
                             here</a></li>

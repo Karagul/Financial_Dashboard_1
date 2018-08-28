@@ -3,7 +3,7 @@
 
 {% include 'menu non-home.html' %}
 
-{% block title %}Costs{% endblock %}
+{% block title %}Expenses{% endblock %}
 
 {% block content %}
     <div class="container">
@@ -22,15 +22,15 @@
                 </tr>
             </thead>
             <tbody>
-                {% for document in costs %}
-                    {% include 'costs/row.html' %}
+                {% for document in expenses %}
+                    {% include 'expenses/row.html' %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
     <button type="button" class="btn btn-primary navbar-btn"
                             data-toggle="modal" data-target="#revenue-modal">
-        Add a cost
+        Add an expense
     </button>
 
 {# Modals go here #}
@@ -38,7 +38,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add a new cost</h5>
+                <h5 class="modal-title">Add a new expense</h5>
                 <button type="button" class="close" data-dismiss="modal"
                         aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -47,7 +47,7 @@
             <div class="modal-body">
                 <form action="#" method="post">
                     {% csrf_token %}
-                    {% bootstrap_form cost_form %}
+                    {% bootstrap_form expense_form %}
                     {% bootstrap_button "Submit" button_type="submit" button_class="btn-primary" %}
                 </form>
             </div>

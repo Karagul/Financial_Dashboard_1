@@ -55,7 +55,7 @@ class Revenue(models.Model):
     payment_deadline = models.DateField(null=True)
     document_id = models.CharField(max_length=80)
     project = models.ForeignKey("Project", on_delete=models.PROTECT)
-    expected_payment_date = models.DateField(null=True)
+    expected_payment_date = models.DateField(null=True)     # Expected or True
     settlement_status = models.BooleanField(default=False)
     payment_expectation = models.DecimalField(
         max_digits=3, decimal_places=2, null=True
@@ -83,7 +83,7 @@ class Revenue(models.Model):
         return self.net_amount_converted * self.vat_rate
 
 
-class Cost(models.Model):
+class Expense(models.Model):
     name = models.CharField(max_length=120)
     # Category to choose from another table
     type_description = models.CharField(max_length=120)
@@ -92,7 +92,7 @@ class Cost(models.Model):
     document_id = models.CharField(max_length=80)
     document_date = models.DateField(null=True)
     payment_deadline = models.DateField(null=True)
-    expected_payment_date = models.DateField(null=True)
+    expected_payment_date = models.DateField(null=True)     # Expected or True
     country = models.ForeignKey("Country", on_delete=models.PROTECT, default=1)
     net_amount = models.DecimalField(max_digits=8, decimal_places=2)
     vat_rate = models.DecimalField(max_digits=4, decimal_places=2, default=23)
@@ -172,7 +172,7 @@ class Currency(models.Model):
     def __str__(self):
         return self.abbreviation
 
-class CostCategory(models.Model):
+class ExpenseCategory(models.Model):
     name = models.CharField(max_length=80)
 
     # company = models.ForeignKey("Company", on_delete=models.CASCADE)

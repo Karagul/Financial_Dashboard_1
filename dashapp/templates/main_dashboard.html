@@ -8,13 +8,27 @@
     <div class="card">
       <h5 class="card-header">Revenues</h5>
       <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+          <table class="table">
+              <tbody>
+              <tr>
+                  <td><p class="card-text">Current month:</p></td>
+                  <td>{{current_month_revenue}}</td>
+              </tr>
+              <tr>
+                  <td><p class="card-text">Last month:</p></td>
+                  <td>{{last_month_revenue}}</td>
+              </tr>
+              <tr>
+                  <td><p class="card-text">Annually:</p></td>
+                  <td>{{annual_revenue}}</td>
+              </tr>
+              </tbody>
+          </table>
+        <a href="{% url 'revenues' pk=request.user.companymember.company.id %}" class="btn btn-primary">View</a>
       </div>
     </div>
     <div class="card">
-      <h5 class="card-header">Costs</h5>
+      <h5 class="card-header">Expired Revenues</h5>
       <div class="card-body">
         <h5 class="card-title">Special title treatment</h5>
         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
@@ -22,7 +36,7 @@
       </div>
     </div>
     <div class="card">
-      <h5 class="card-header">Featured</h5>
+      <h5 class="card-header">Expenses</h5>
       <div class="card-body">
         <h5 class="card-title">Special title treatment</h5>
         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
@@ -30,7 +44,7 @@
       </div>
     </div>
     <div class="card">
-      <h5 class="card-header">Featured</h5>
+      <h5 class="card-header">Expired Expenses</h5>
       <div class="card-body">
         <h5 class="card-title">Special title treatment</h5>
         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
@@ -38,15 +52,20 @@
       </div>
     </div>
     <div class="card">
-      <h5 class="card-header">Featured</h5>
-      <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+      <h5 class="card-header">Today's Payments</h5>
+      <div class="card-body">Expenses to be paid today:</h5>
+        <ul>
+            {% for payment in today_payments %}
+                {% include 'main_dashboard/today_payment.html' %}
+            {% empty %}
+                <p>None</p>
+            {% endfor %}
+        </ul>
         <a href="#" class="btn btn-primary">Go somewhere</a>
       </div>
     </div>
     <div class="card">
-      <h5 class="card-header">Featured</h5>
+      <h5 class="card-header">Upcoming Payments</h5>
       <div class="card-body">
         <h5 class="card-title">Special title treatment</h5>
         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>

@@ -1,12 +1,13 @@
 from django import forms
 from django.contrib.auth.models import User, Group
 from django.forms import ModelForm
-from dashapp.models import Company, Revenue, Cost
+from dashapp.models import Company, Revenue, Expense
 
 # ToDo: Make additional validators, if needed. Labels, if needed. Widgets
 
 # Choices
 
+# ToDo: In future, add salespeople (pk=3) group, and allow only their info
 GROUPS = (
     (1, Group.objects.get(pk=1)),
     (2, Group.objects.get(pk=2))
@@ -33,9 +34,6 @@ class UserRegisterForm(ModelForm):
         widget=forms.PasswordInput,
         label="Repeat password",
     )
-    group = forms.ChoiceField(
-        choices=GROUPS
-    )
 
     class Meta:
         model = User
@@ -55,6 +53,25 @@ class UserRegisterForm(ModelForm):
     )
 
 
+class EmployeeRegisterForm(ModelForm):
+    group = forms.ChoiceField(
+        choices=GROUPS
+    )
+
+    class Meta:
+        model = User
+        fields = ("username", "first_name", "last_name", "email")
+        labels = {"email": "E-mail"}
+
+    field_order = (
+        "username",
+        "first_name",
+        "last_name",
+        "email",
+    )
+
+
+
 # Data forms
 
 class AddRevenueForm(ModelForm):
@@ -63,7 +80,7 @@ class AddRevenueForm(ModelForm):
         fields = "__all__"
 
 
-class AddCostForm(ModelForm):
+class AddExpenseForm(ModelForm):
     class Meta:
-        model = Cost
+        model = Expense
         fields = "__all__"
