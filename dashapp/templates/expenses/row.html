@@ -26,7 +26,7 @@
           <p>VAT rate: {{document.display_vat_rate}}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" href="{% url 'expense-modify' pk=document.id %}">Modify</button>
+        <a role="button" class="btn btn-default" href="{% url 'modify-expense' pk=document.id %}">Modify</a>
         <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
       </div>
     </div>

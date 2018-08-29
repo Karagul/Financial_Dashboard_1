@@ -55,10 +55,10 @@ class Revenue(models.Model):
     payment_deadline = models.DateField(null=True)
     document_id = models.CharField(max_length=80)
     project = models.ForeignKey("Project", on_delete=models.PROTECT)
-    actual_payment_date = models.DateField(null=True)
+    actual_payment_date = models.DateField(null=True, blank=True)
     settlement_status = models.BooleanField(default=False)
     payment_expectation = models.DecimalField(
-        max_digits=3, decimal_places=2, null=True
+        max_digits=3, decimal_places=2, null=True, default=1
     )   # Ewentualnie przerobić na small integer?
     net_amount_foreign = models.DecimalField(max_digits=8, decimal_places=2)
     currency = models.ForeignKey(
@@ -72,7 +72,9 @@ class Revenue(models.Model):
     )
     vat_rate = models.DecimalField(max_digits=4, decimal_places=2, default=23)
 
-    company = models.ForeignKey("Company", on_delete=models.CASCADE)
+    # Null in company is allowed to permit saving via CreateForm, and then
+    # adding the relation within view's form_valid
+    company = models.ForeignKey("Company", on_delete=models.CASCADE, null=True)
 
     @property
     def net_amount_converted(self):
@@ -80,7 +82,7 @@ class Revenue(models.Model):
 
     @property
     def gross_amount_converted(self):
-        return round(self.net_amount_converted * self.vat_rate, 2)
+        return round(self.net_amount_converted * (1 + (self.vat_rate / 100)), 2)
 
     @property
     def percent_payment_expectation(self):
@@ -100,17 +102,19 @@ class Expense(models.Model):
     document_id = models.CharField(max_length=80)
     document_date = models.DateField(null=True)
     payment_deadline = models.DateField(null=True)
-    actual_payment_date = models.DateField(null=True)
+    actual_payment_date = models.DateField(null=True, blank=True)
     country = models.ForeignKey("Country", on_delete=models.PROTECT, default=1)
     net_amount = models.DecimalField(max_digits=8, decimal_places=2)
     vat_rate = models.DecimalField(max_digits=4, decimal_places=2, default=23)
     settlement_status = models.BooleanField()
 
-    company = models.ForeignKey("Company", on_delete=models.CASCADE)
+    # Null in company is allowed to permit saving via CreateForm, and then
+    # adding the relation within view's form_valid
+    company = models.ForeignKey("Company", on_delete=models.CASCADE, null=True)
 
     @property
     def gross_amount(self):
-        return round(self.net_amount * self.vat_rate, 2)
+        return round(self.net_amount * (1 + (self.vat_rate / 100)), 2)
 
     @property
     def display_vat_rate(self):

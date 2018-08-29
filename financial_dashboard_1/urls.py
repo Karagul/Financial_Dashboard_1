@@ -29,8 +29,10 @@ from dashapp.views import (
     IncomeStatementView,
     logout_view,
     NewEmployeeRegistrationView,
-    RevenueModifyView,
-    ExpenseModifyView,
+    AddRevenueView,
+    AddExpenseView,
+    ModifyRevenueView,
+    ModifyExpenseView,
 )
 
 # ToDo: Na koniec uporządkować tą listę
@@ -69,14 +71,24 @@ urlpatterns = [
         name="company-settings"
     ),
     re_path(
-        r"^revenue-modify/(?P<pk>(\d)+)/?$",
-        RevenueModifyView.as_view(),
-        name="revenue-modify"
+        r"^modify-revenue/(?P<pk>(\d)+)/?$",
+        ModifyRevenueView.as_view(),
+        name="modify-revenue"
     ),
     re_path(
-        r"^expense-modify/(?P<pk>(\d)+)/?$",
-        ExpenseModifyView.as_view(),
-        name="expense-modify"
+        r"^modify-expense/(?P<pk>(\d)+)/?$",
+        ModifyExpenseView.as_view(),
+        name="modify-expense"
+    ),
+    re_path(
+        r"^(?P<pk>(\d)+)/add-revenue/?$",
+        AddRevenueView.as_view(),
+        name="add-revenue"
+    ),
+    re_path(
+        r"^(?P<pk>(\d)+)/add-expense/?$",
+        AddExpenseView.as_view(),
+        name="add-expense"
     ),
 
     # Manager views

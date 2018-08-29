@@ -12,15 +12,15 @@
               <tbody>
               <tr>
                   <td><p class="card-text">Current month:</p></td>
-                  <td class="value-format">{{current_month_revenue}}</td>
+                  <td class="value-format">{{current_month_revenues}}</td>
               </tr>
               <tr>
                   <td><p class="card-text">Last month:</p></td>
-                  <td class="value-format">{{last_month_revenue}}</td>
+                  <td class="value-format">{{last_month_revenues}}</td>
               </tr>
               <tr>
                   <td><p class="card-text">Annually:</p></td>
-                  <td class="value-format">{{annual_revenue}}</td>
+                  <td class="value-format">{{annual_revenues}}</td>
               </tr>
               </tbody>
           </table>
@@ -38,9 +38,23 @@
     <div class="card">
       <h5 class="card-header">Expenses</h5>
       <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+          <table class="table"><x></x>
+              <tbody>
+              <tr>
+                  <td><p class="card-text">Current month:</p></td>
+                  <td class="value-format">{{current_month_expenses}}</td>
+              </tr>
+              <tr>
+                  <td><p class="card-text">Last month:</p></td>
+                  <td class="value-format">{{last_month_expenses}}</td>
+              </tr>
+              <tr>
+                  <td><p class="card-text">Annually:</p></td>
+                  <td class="value-format">{{annual_expenses}}</td>
+              </tr>
+              </tbody>
+          </table>
+        <a href="{% url 'expenses' pk=request.user.companymember.company.id %}" class="btn btn-primary">View</a>
       </div>
     </div>
     <div class="card">

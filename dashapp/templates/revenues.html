@@ -45,7 +45,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="#" method="post">
+                <form action="{% url 'add-revenue' pk=request.user.companymember.company.id %}" method="post">
                     {% csrf_token %}
                     {% bootstrap_form revenue_form %}
                     {% bootstrap_button "Submit" button_type="submit" button_class="btn-primary" %}

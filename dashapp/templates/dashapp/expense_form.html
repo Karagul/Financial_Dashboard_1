@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}
+     Add a new expense
+{% endblock %}
+{% block content %}
+
+<div class="container grey-cont">
+    {% if error %}
+        {% bootstrap_alert error alert_type="danger" %}
+    {% endif %}
+    <form action="{% url 'add-expense' pk=view.kwargs.pk %}" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% bootstrap_button "Submit" button_type="submit" button_class="btn-primary" %}
+        {% bootstrap_button "Reset" button_type="reset" button_class="btn-default" %}
+    </form>
+</div>
+{% endblock %}

@@ -17,20 +17,29 @@
             <thead class="thead-dark">
                 <tr>
                     <th>Category</th>
-                    <th>Last month</th>
-                    <th>Current month</th>
+                    {% for month in months %}
+                        <th class="month-names">{{month}}</th>
+                    {% endfor %}
                     <th>Total (year)</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>Net revenues</td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format">{{total_net_revenues}}</td>
+                    <td class="value-format net-revenue-element">{{five_month_ago_net_revenues}}</td>
+                    <td class="value-format net-revenue-element">{{four_month_ago_net_revenues}}</td>
+                    <td class="value-format net-revenue-element">{{three_month_ago_net_revenues}}</td>
+                    <td class="value-format net-revenue-element">{{two_month_ago_net_revenues}}</td>
+                    <td class="value-format net-revenue-element">{{one_month_ago_net_revenues}}</td>
+                    <td class="value-format net-revenue-element">{{current_month_net_revenues}}</td>
+                    <td class="value-format net-revenue-element">{{total_net_revenues}}</td>
                 </tr>
                 <tr>
                     <td>Net expenses</td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
                     <td class="value-format"></td>
                     <td class="value-format"></td>
                     <td class="value-format"></td>
@@ -40,15 +49,27 @@
                     <td class="value-format"></td>
                     <td class="value-format"></td>
                     <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
                 </tr>
                 <tr>
                     <td>Tax</td>
                     <td class="value-format"></td>
                     <td class="value-format"></td>
                     <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
                 </tr>
                 <tr>
                     <td>Net profit</td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
+                    <td class="value-format"></td>
                     <td class="value-format"></td>
                     <td class="value-format"></td>
                     <td class="value-format"></td>

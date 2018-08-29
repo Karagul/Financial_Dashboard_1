@@ -6,41 +6,41 @@ from django.utils.decorators import method_decorator
 from guardian.decorators import permission_required_or_403
 from guardian.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
-from django.http import request, HttpRequest, Http404, HttpResponseForbidden
+from django.http import request, HttpRequest, Http404, HttpResponseForbidden, \
+    HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView, FormView, UpdateView, CreateView
 from dashapp.forms import LoginForm, UserRegisterForm, CompanyRegisterForm, \
-    AddRevenueForm, EmployeeRegisterForm
+    AddRevenueForm, EmployeeRegisterForm, ModifyRevenueForm, ModifyExpenseForm, \
+    AddExpenseForm
 from dashapp.models import Revenue, Expense, Employee, Customer, Procedure, \
     Country, PaymentType, Project, Currency, ExpenseCategory, Company, \
     CompanyMember
 from dashapp.mixins import GroupRequiredMixin
 from guardian.shortcuts import assign_perm, get_perms
-from datetime import date
-
-
+import datetime
+import calendar
 
 # ToDo: Maybe move those functions somewhere else?
 
 def revenue_calculator(company_id, start_date, end_date):
-     data = Revenue.objects.filter(
+    data = Revenue.objects.filter(
         company=company_id,
-        document_date__gte=start_date,
-        document_date__lte=end_date
-        )
-     total = 0
-     for revenue in data:
-         total += revenue.net_amount_converted
-     return total
+        document_date__range=[start_date, end_date]
+    )
+    total = 0
+    for revenue in data:
+        total += revenue.net_amount_converted
+    return total
+
 
 def expense_calculator(company_id, start_date, end_date):
     data = Expense.objects.filter(
         company=company_id,
-        document_date__gte=start_date,
-        document_date__lte=end_date
+        document_date__range=[start_date, end_date]
     )
     total = 0
     for revenue in data:
@@ -51,24 +51,22 @@ def receipt_calculator(company_id, start_date, end_date):
     data = Revenue.objects.filter(
         company=company_id,
         settlement_status=True,
-        expected_payment_date__gte=start_date,
-        expected_payment_date__lte=end_date,
+        actual_payment_date__range=[start_date, end_date]
     )
     total = 0
     for receipt in data:
-        total += receipt.net_amount
+        total += receipt.gross_amount_converted
     return total
 
 def expenditure_calculator(company_id, start_date, end_date):
     data = Expense.objects.filter(
         company=company_id,
         settlement_status=True,
-        expected_payment_date__gte=start_date,
-        expected_payment_date__lte=end_date,
+        actual_payment_date__range=[start_date, end_date]
     )
     total = 0
     for expenditure in data:
-        total += expenditure.net_amount
+        total += expenditure.gross_amount
     return total
 
 
@@ -83,7 +81,6 @@ class LoginView(FormView):
     form_class = LoginForm
     # ToDo: should send user back to main page? Or to the panel perhaps?
     success_url = ""
-    # success_url = reverse_lazy("main-dashboard", kwargs=request.user.companymember.company.id)
 
     def form_valid(self, form):
         user = authenticate(
@@ -248,26 +245,52 @@ class MainDashboardView(LoginRequiredMixin, TemplateView):
 
 
     def get_context_data(self, **kwargs):
-        year_beginning = date(date.today().year, 1, 1)
-        year_end = date(date.today().year, 12, 31)
-        month_beginning = date(date.today().year, date.today().month, 1)
+
+        company_id = self.kwargs["pk"]
+
+        # Date calculations
+        today = datetime.date.today()
+        current_year_beginning = today.replace(month=1, day=1)
+        current_year_end = today.replace(month=12, day=31)
+        current_month_beginning = today.replace(day=1)
+        current_month_end = today.replace(
+            day=calendar.monthrange(today.year, today.month)[1]
+        )
+        one_month_ago_beginning = (current_month_beginning
+                                   - datetime.timedelta(days=1)).replace(day=1)
+        one_month_ago_end = current_month_beginning \
+                            - datetime.timedelta(days=1)
 
         return {
-            # ToDo: Tu są bzdury, zmienić gdy będzie funkcja do obliczania
-            "current_month_revenue": revenue_calculator(
-                self.kwargs["pk"],
-                month_beginning,
-                year_end
+            "current_month_revenues": revenue_calculator(
+                company_id,
+                current_month_beginning,
+                current_month_end
             ),
-            "last_month_revenue": revenue_calculator(
-                self.kwargs["pk"],
-                month_beginning,
-                year_end
+            "last_month_revenues": revenue_calculator(
+                company_id,
+                one_month_ago_beginning,
+                one_month_ago_end
             ),
-            "annual_revenue": revenue_calculator(
-                self.kwargs["pk"],
-                year_beginning,
-                year_end
+            "annual_revenues": revenue_calculator(
+                company_id,
+                current_year_beginning,
+                current_year_end
+            ),
+            "current_month_expenses": expense_calculator(
+                company_id,
+                current_month_beginning,
+                current_month_end
+            ),
+            "last_month_expenses": expense_calculator(
+                company_id,
+                one_month_ago_beginning,
+                one_month_ago_end
+            ),
+            "annual_expenses": expense_calculator(
+                company_id,
+                current_year_beginning,
+                current_year_end
             ),
         }
 
@@ -276,31 +299,42 @@ class ManagerDashboardView(LoginRequiredMixin, TemplateView):
     template_name = "manager_dashboard.html"
 
     def get_context_data(self, **kwargs):
-        year_beginning = date(date.today().year, 1, 1)
-        year_end = date(date.today().year, 12, 31)
+
+        company_id = self.kwargs["pk"]
+
+        # Date calculations
+        today = datetime.date.today()
+        current_year_beginning = today.replace(month=1, day=1)
+        current_year_end = today.replace(month=12, day=31)
+        current_month_beginning = today.replace(day=1)
+        current_month_end = today.replace(
+            day=calendar.monthrange(today.year, today.month)[1]
+        )
 
         revenues = revenue_calculator(
-                self.kwargs["pk"],
-                year_beginning,
-                year_end
+            company_id,
+            current_year_beginning,
+            current_year_end
             )
+
         expenses = expense_calculator(
-                self.kwargs["pk"],
-                year_beginning,
-                year_end
+            company_id,
+            current_year_beginning,
+            current_year_end
             )
+
         net = revenues - expenses
 
         receipts = receipt_calculator(
-                self.kwargs["pk"],
-                year_beginning,
-                year_end
+            company_id,
+            current_year_beginning,
+            current_year_end
             )
 
         expenditures = expenditure_calculator(
-            self.kwargs["pk"],
-            year_beginning,
-            year_end
+            company_id,
+            current_year_beginning,
+            current_year_end
         )
 
         cash_change = receipts - expenditures
@@ -338,7 +372,7 @@ class ExpensesView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         return {
             "expenses": Expense.objects.all().order_by("document_date"),
-            "expense_form": AddRevenueForm
+            "expense_form": AddExpenseForm
         }
 
 # Manager views
@@ -367,81 +401,88 @@ class IncomeStatementView(
 
 
     def get_context_data(self, **kwargs):
-        # ToDo: Currently counts total revenues
 
         # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
 
-        year_beginning = date(date.today().year, 1, 1)
-        year_end = date(date.today().year, 12, 31)
-        month_beginning = date(date.today().year, date.today().month, 1)
+        company_id = self.kwargs["pk"]
+
+        # Date calculations
+        today = datetime.date.today()
+        current_year_beginning = today.replace(month=1, day=1)
+        current_year_end = today.replace(month=12, day=31)
+        current_month_beginning = today.replace(day=1)
+        current_month_end = today.replace(
+            day=calendar.monthrange(today.year, today.month)[1]
+        )
+        one_month_ago_beginning = (current_month_beginning
+                                   - datetime.timedelta(days=1)).replace(day=1)
+        one_month_ago_end = current_month_beginning \
+                            - datetime.timedelta(days=1)
+        two_month_ago_beginning = (one_month_ago_beginning
+                                   - datetime.timedelta(days=1)).replace(day=1)
+        two_month_ago_end = one_month_ago_beginning \
+                            - datetime.timedelta(days=1)
+        three_month_ago_beginning = (two_month_ago_beginning
+                                   - datetime.timedelta(days=1)).replace(day=1)
+        three_month_ago_end = two_month_ago_beginning \
+                            - datetime.timedelta(days=1)
+        four_month_ago_beginning = (three_month_ago_beginning
+                                   - datetime.timedelta(days=1)).replace(day=1)
+        four_month_ago_end = three_month_ago_beginning \
+                            - datetime.timedelta(days=1)
+        five_month_ago_beginning = (four_month_ago_beginning
+                                   - datetime.timedelta(days=1)).replace(day=1)
+        five_month_ago_end = four_month_ago_beginning \
+                            - datetime.timedelta(days=1)
+
+        month_list = [
+            calendar.month_name[five_month_ago_beginning.month],
+            calendar.month_name[four_month_ago_beginning.month],
+            calendar.month_name[three_month_ago_beginning.month],
+            calendar.month_name[two_month_ago_beginning.month],
+            calendar.month_name[one_month_ago_beginning.month],
+            calendar.month_name[today.month]
+        ]
 
         return {
+            "months": month_list,
             "total_net_revenues" : revenue_calculator(
-                self.kwargs["pk"], year_beginning, year_end
-            )
+                company_id,
+                current_year_beginning,
+                current_year_end
+            ),
+            "current_month_net_revenues": revenue_calculator(
+                company_id,
+                current_month_beginning,
+                current_month_end
+            ),
+            "one_month_ago_net_revenues": revenue_calculator(
+                company_id,
+                one_month_ago_beginning,
+                one_month_ago_end
+            ),
+            "two_month_ago_net_revenues": revenue_calculator(
+                company_id,
+                two_month_ago_beginning,
+                two_month_ago_end
+            ),
+            "three_month_ago_net_revenues": revenue_calculator(
+                company_id,
+                three_month_ago_beginning,
+                three_month_ago_end
+            ),
+            "four_month_ago_net_revenues": revenue_calculator(
+                company_id,
+                four_month_ago_beginning,
+                four_month_ago_end
+            ),
+            "five_month_ago_net_revenues": revenue_calculator(
+                company_id,
+                five_month_ago_beginning,
+                five_month_ago_end
+            ),
         }
 
-# Second path
-# class IncomeStatementView(
-#     LoginRequiredMixin, TemplateView
-# ):
-#
-#     @method_decorator(permission_required_or_403('dashapp.view_company',
-#                                                  (Company, 'pk', 'pk'),
-#                                                  accept_global_perms=True))
-#     def dispatch(self, request, *args, **kwargs):
-#         print()
-#         permission_required = "company_" + str(self.kwargs["pk"])
-#         return super(IncomeStatementView, self).dispatch(
-#             request, *args, **kwargs
-#         )
-#
-#     # ToDo: Currently counts total revenues
-#     template_name = "income_statement.html"
-#
-#     # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
-#     revenue_data = Revenue.objects.all()
-#     total_net_revenues = 0
-#     # ToDo: Zaokrąglić
-#     for revenue in revenue_data:
-#         total_net_revenues += revenue.net_amount_converted
-#
-#     def get_context_data(self, **kwargs):
-#         return {
-#             "total_net_revenues": self.total_net_revenues
-#         }
-
-# Old version
-# class IncomeStatementView(
-#     LoginRequiredMixin, GroupRequiredMixin, TemplateView
-# ):
-#
-#     # Checks for employee-type group, the company group is checked within the
-#     # custom mixin GroupRequiredMixin
-#     group_required = ["Managers"]
-#
-#
-#     # def get_group_required(self):
-#     #     return self.request.user.companymember.company.id
-#
-#     # group_required = ["Managers", "company_" + request.user.companymember.company.id]
-#
-#
-#
-#     # ToDo: Currently counts total revenues
-#     template_name = "income_statement.html"
-#
-#     # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
-#     revenue_data = Revenue.objects.all()
-#     total_net_revenues = 0
-#     # ToDo: Zaokrąglić
-#     for revenue in revenue_data:
-#         total_net_revenues += revenue.net_amount_converted
-#
-#     def get_context_data(self, **kwargs):
-#         return {
-#             "total_net_revenues" : self.total_net_revenues
-#         }
 
 class CashFlowView(
     LoginRequiredMixin, TemplateView
@@ -471,20 +512,135 @@ class CashFlowView(
 
         # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
 
-        year_beginning = date(date.today().year, 1, 1)
-        year_end = date(date.today().year, 12, 31)
-        month_beginning = date(date.today().year, date.today().month, 1)
+        company_id = self.kwargs["pk"]
+
+        # Date calculations
+        today = datetime.date.today()
+        current_year_beginning = today.replace(month=1, day=1)
+        current_year_end = today.replace(month=12, day=31)
 
         return {
-
+            "total_gross_receipts": receipt_calculator(
+                company_id,
+                current_year_beginning,
+                current_year_end
+            )
         }
 
 class ModificationDashboardView(LoginRequiredMixin, TemplateView):
     template_name = "modification_dashboard.html"
 
+# w Add pk to firma
 
-class RevenueModifyView(LoginRequiredMixin, TemplateView):
-    template_name = "home.html"
+class AddRevenueView(LoginRequiredMixin, CreateView):
+    model = Revenue
+    form_class = AddRevenueForm
+    success_url = ""
 
-class ExpenseModifyView(LoginRequiredMixin, TemplateView):
-    template_name = "home.html"
+    def dispatch(self, request, *args, **kwargs):
+
+        if str(request.user.companymember.company.id) == self.kwargs["pk"]:
+
+            self.success_url = reverse_lazy(
+                "revenues",
+                kwargs={"pk": request.user.companymember.company.id}
+            )
+
+            return super(AddRevenueView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
+
+    def form_valid(self, form, *args, **kwargs):
+        new_document = form.save()
+        new_document.company = Company.objects.get(pk=self.kwargs["pk"])
+        new_document.save()
+        return super(AddRevenueView, self).form_valid(form)
+
+
+class AddExpenseView(LoginRequiredMixin, CreateView):
+    model = Expense
+    form_class = AddExpenseForm
+    success_url = ""
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if str(request.user.companymember.company.id) == self.kwargs["pk"]:
+
+            self.success_url = reverse_lazy(
+                "expenses",
+                kwargs={"pk": request.user.companymember.company.id}
+            )
+
+            return super(AddExpenseView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
+
+    def form_valid(self, form, *args, **kwargs):
+        new_document = form.save()
+        new_document.company = Company.objects.get(pk=self.kwargs["pk"])
+        new_document.save()
+        return super(AddExpenseView, self).form_valid(form)
+
+
+class ModifyRevenueView(LoginRequiredMixin, UpdateView):
+    model = Revenue
+    form_class = ModifyRevenueForm
+    template_name_suffix = '_update_form'
+    success_url = ""
+
+
+    def dispatch(self, request, *args, **kwargs):
+        document_data = Revenue.objects.get(pk=self.kwargs["pk"])
+
+        if request.user.companymember.company.id == document_data.company.id:
+
+            self.success_url = reverse_lazy(
+                "revenues",
+                kwargs={"pk": request.user.companymember.company.id}
+            )
+
+            return super(ModifyRevenueView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
+
+    def form_valid(self, form, *args, **kwargs):
+        new_document = form.save()
+        new_document.company = Company.objects.get(pk=self.kwargs["pk"])
+        new_document.save()
+        return super(ModifyRevenueView, self).form_valid(form)
+
+
+class ModifyExpenseView(LoginRequiredMixin, UpdateView):
+    model = Expense
+    form_class = ModifyExpenseForm
+    template_name_suffix = '_update_form'
+    success_url = ""
+
+
+    def dispatch(self, request, *args, **kwargs):
+        document_data = Expense.objects.get(pk=self.kwargs["pk"])
+
+        if request.user.companymember.company.id == document_data.company.id:
+
+            self.success_url = reverse_lazy(
+                "expenses",
+                kwargs={"pk": request.user.companymember.company.id}
+            )
+
+            return super(ModifyExpenseView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
+
+    def form_valid(self, form, *args, **kwargs):
+        new_document = form.save()
+        new_document.company = Company.objects.get(pk=self.kwargs["pk"])
+        new_document.save()
+        return super(ModifyExpenseView, self).form_valid(form)

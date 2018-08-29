@@ -77,10 +77,23 @@ class EmployeeRegisterForm(ModelForm):
 class AddRevenueForm(ModelForm):
     class Meta:
         model = Revenue
-        fields = "__all__"
+        exclude = ("company",)
 
 
 class AddExpenseForm(ModelForm):
     class Meta:
         model = Expense
-        fields = "__all__"
+        exclude = ("company",)
+
+
+
+class ModifyRevenueForm(ModelForm):
+    class Meta:
+        model = Revenue
+        exclude = ("company",)
+
+
+class ModifyExpenseForm(ModelForm):
+    class Meta:
+        model = Expense
+        exclude = ("company",)
