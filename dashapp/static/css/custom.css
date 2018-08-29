@@ -45,6 +45,10 @@ body {
     flex-shrink: 0;
 }
 
+.value-format {
+    text-align: right;
+}
+
 /*Cards from Bootstrap 4 Modified!*/
 .card {
   position: relative;

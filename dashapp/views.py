@@ -181,6 +181,22 @@ class MainRegistrationView(View):
 
 
 class NewEmployeeRegistrationView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+
+        user_groups = [
+            group for group in request.user.groups.values_list(
+                'name', flat=True
+            )
+        ]
+
+        if str(request.user.companymember.company.id) == self.kwargs["pk"]\
+                and "Managers" in user_groups:
+            return super(NewEmployeeRegistrationView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
+
     def get(self, request, pk):
         return TemplateResponse(
             request, "employee_registration.html", {
@@ -299,7 +315,7 @@ class ManagerDashboardView(LoginRequiredMixin, TemplateView):
         }
 
 class RevenuesView(LoginRequiredMixin,TemplateView):
-    # Tabela mogłaby wyświetlać tylko część danych, a reszta w popupie po naciśnięciu?
+
     template_name = "revenues.html"
 
     def get_context_data(self, **kwargs):
@@ -313,11 +329,10 @@ class RevenuesView(LoginRequiredMixin,TemplateView):
             "revenue_form": AddRevenueForm
         }
 
-    # Form -> RevenueAddView (jak dla rejestracji i tam są błędy) -> Jeśli ok, to wraca na RevenuesView
-    # Revenue -> Modal
+
 
 class ExpensesView(LoginRequiredMixin, TemplateView):
-    # Tabela mogłaby wyświetlać tylko część danych, a reszta w popupie po naciśnięciu?
+
     template_name = "expenses.html"
 
     def get_context_data(self, **kwargs):
@@ -466,3 +481,10 @@ class CashFlowView(
 
 class ModificationDashboardView(LoginRequiredMixin, TemplateView):
     template_name = "modification_dashboard.html"
+
+
+class RevenueModifyView(LoginRequiredMixin, TemplateView):
+    template_name = "home.html"
+
+class ExpenseModifyView(LoginRequiredMixin, TemplateView):
+    template_name = "home.html"

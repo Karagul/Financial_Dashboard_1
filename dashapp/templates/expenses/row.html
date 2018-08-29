@@ -2,17 +2,32 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
+        <h5 class="modal-title">Expense: {{document.document_id}}</h5>
       </div>
       <div class="modal-body">
-        <p>Modal body text goes here.</p>
+          <p>Expanse name: {{document.name}}</p>
+          <p>Expense type: {{document.type_description}}</p>
+          <p>Assigned project: {{document.project}}</p>
+          <p>Assigned procedure: {{document.procedure}}</p>
+          <p>Document date: {{document.document_date}}</p>
+          <p>Payment deadline: {{document.payment_deadline}}</p>
+          <p>
+              Payment status:
+              {% if document.settlement_status == True %}
+              Paid on {{document.actual_payment_date}}
+              {% else %}
+              Unpaid
+              {% endif %}
+          </p>
+          <p>Net amount: {{document.net_amount}}</p>
+          <p>VAT rate: {{document.display_vat_rate}}</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-default" href="{% url 'expense-modify' pk=document.id %}">Modify</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -21,7 +36,13 @@
     <td>{{document.type_description}}</td>
     <td>{{document.document_id}}</td>
     <td>{{document.project}}</td>
-    <td>{{document.net_amount}}</td>
-    <td>{{document.settlement_status}}</td>
-    <td>{{document.expected_payment_date}}</td>
+    <td class="value-format">{{document.net_amount}}</td>
+        <td>
+        {% if document.settlement_status == True %}
+          Paid
+          {% else %}
+          Unpaid
+          {% endif %}
+    </td>
+    <td>{{document.payment_deadline}}</td>
 </tr>
