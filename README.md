@@ -57,6 +57,8 @@ Features to be possibly implemented in the future:
 * JavaScript / jQuery
 * Highcharts 6.1.1 demo
 
+Bootstrap & Highcharts are used locally in dashapp/static/lib
+
 # Author
 Bartosz Wójcik
 bartosz.wojcik@bartvessh.com
