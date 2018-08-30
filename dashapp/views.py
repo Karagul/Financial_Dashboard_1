@@ -646,6 +646,7 @@ class ModifyRevenueView(LoginRequiredMixin, UpdateView):
     form_class = ModifyRevenueForm
     template_name_suffix = '_update_form'
     success_url = ""
+    temp_pk = None
 
 
     def dispatch(self, request, *args, **kwargs):
@@ -658,6 +659,8 @@ class ModifyRevenueView(LoginRequiredMixin, UpdateView):
                 kwargs={"pk": request.user.companymember.company.id}
             )
 
+            self.temp_pk = document_data.company.id
+
             return super(ModifyRevenueView, self).dispatch(
                 request, *args, **kwargs
             )
@@ -666,7 +669,8 @@ class ModifyRevenueView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form, *args, **kwargs):
         new_document = form.save()
-        new_document.company = Company.objects.get(pk=self.kwargs["pk"])
+        print(self.temp_pk)
+        new_document.company = Company.objects.get(pk=self.temp_pk)
         new_document.save()
         return super(ModifyRevenueView, self).form_valid(form)
 
@@ -676,6 +680,7 @@ class ModifyExpenseView(LoginRequiredMixin, UpdateView):
     form_class = ModifyExpenseForm
     template_name_suffix = '_update_form'
     success_url = ""
+    temp_pk = None
 
 
     def dispatch(self, request, *args, **kwargs):
@@ -688,6 +693,8 @@ class ModifyExpenseView(LoginRequiredMixin, UpdateView):
                 kwargs={"pk": request.user.companymember.company.id}
             )
 
+            self.temp_pk = document_data.company.id
+
             return super(ModifyExpenseView, self).dispatch(
                 request, *args, **kwargs
             )
@@ -696,6 +703,7 @@ class ModifyExpenseView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form, *args, **kwargs):
         new_document = form.save()
-        new_document.company = Company.objects.get(pk=self.kwargs["pk"])
+
+        new_document.company = Company.objects.get(pk=self.temp_pk)
         new_document.save()
         return super(ModifyExpenseView, self).form_valid(form)

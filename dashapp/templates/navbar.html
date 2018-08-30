@@ -37,7 +37,7 @@
                     <a class="nav-link dropdown-toggle" href="#"
                        role="button" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        Data
+                        Company Data
                         <span class="caret"></span>
                     </a>
 
@@ -47,10 +47,11 @@
                                href="{% url 'revenues' pk=request.user.companymember.company.id %}">Revenues</a></li>
                         <li><a class="dropdown-item"
                                href="{% url 'expenses' pk=request.user.companymember.company.id %}">Expenses</a></li>
-
                         <li role="separator" class="divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'company-settings' pk=request.user.companymember.company.id %}">Company Settings
-                            </a></li>
+                        <li><a class="dropdown-item"
+                               href="{% url 'add-revenue' pk=request.user.companymember.company.id %}">Add Revenue</a></li>
+                        <li><a class="dropdown-item"
+                               href="{% url 'add-expense' pk=request.user.companymember.company.id %}">Add Expense</a></li>
                     </ul>
 
 
@@ -70,7 +71,7 @@
                         <li>
                             <a class="dropdown-item"
                                href="{% url 'income-statement' pk=request.user.companymember.company.id %}">
-                                IncomeStatement
+                                Income Statement
                             </a>
                         </li>
                         <li>
@@ -80,11 +81,14 @@
                             </a>
                         </li>
                         {% endif %}
-                        <li role="separator" class="divider"></li>
-                        <li><a class="dropdown-item" href="#">Something else
-                            here</a></li>
                     </ul>
 
+                </li>
+                {% endif %}
+                {% if request.user.is_authenticated == True %}
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{% url 'company-settings' pk=request.user.companymember.company.id %}">Settings</a>
                 </li>
                 {% endif %}
 
