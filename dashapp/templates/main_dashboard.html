@@ -24,7 +24,8 @@
               </tr>
               </tbody>
           </table>
-        <a href="{% url 'revenues' pk=request.user.companymember.company.id %}" class="btn btn-primary">View</a>
+          <a href="{% url 'add-revenue' pk=request.user.companymember.company.id %}" class="btn btn-default">Add new revenue</a>
+        <a href="{% url 'revenues' pk=request.user.companymember.company.id %}" class="btn btn-primary">Show all</a>
       </div>
     </div>
     <div class="card">
@@ -32,7 +33,7 @@
       <div class="card-body">
         <h5 class="card-title">Special title treatment</h5>
         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <a href="#" class="btn btn-primary">Show all expired revenues</a>
       </div>
     </div>
     <div class="card">
@@ -54,7 +55,8 @@
               </tr>
               </tbody>
           </table>
-        <a href="{% url 'expenses' pk=request.user.companymember.company.id %}" class="btn btn-primary">View</a>
+          <a href="{% url 'add-expense' pk=request.user.companymember.company.id %}" class="btn btn-default">Add new expense</a>
+        <a href="{% url 'expenses' pk=request.user.companymember.company.id %}" class="btn btn-primary">Show all</a>
       </div>
     </div>
     <div class="card">
@@ -62,20 +64,23 @@
       <div class="card-body">
         <h5 class="card-title">Special title treatment</h5>
         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <a href="#" class="btn btn-primary">Show all expired expenses</a>
       </div>
     </div>
     <div class="card">
       <h5 class="card-header">Today's Payments</h5>
       <div class="card-body">Expenses to be paid today:</h5>
-        <ul>
+        <table class="non-visible-table">
+            <tbody>
             {% for payment in today_payments %}
                 {% include 'main_dashboard/today_payment.html' %}
             {% empty %}
-                <p>None</p>
+                <tr><td>None</td><td></td></tr>
+            <p></p>
             {% endfor %}
-        </ul>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+            </tbody>
+        </table>
+          <p></p>
       </div>
     </div>
     <div class="card">
@@ -83,7 +88,7 @@
       <div class="card-body">
         <h5 class="card-title">Special title treatment</h5>
         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <a href="#" class="btn btn-primary">Show all upcoming</a>
       </div>
     </div>
 </div>

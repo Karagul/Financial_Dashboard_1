@@ -30,6 +30,18 @@ body {
     cursor: pointer;
 }
 
+/* Dashboard small invisible tables */
+.non-visible-table {
+  width: 100%;
+
+}
+
+.button-td {
+  width: 110px;
+
+}
+
+
 /* Footer style */
 
 .page-footer {

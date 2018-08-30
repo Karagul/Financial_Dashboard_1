@@ -293,6 +293,10 @@ class MainDashboardView(LoginRequiredMixin, TemplateView):
                 current_year_beginning,
                 current_year_end
             ),
+            "today_payments": Expense.objects.filter(
+                payment_deadline=today,
+                settlement_status=False
+            )
         }
 
 

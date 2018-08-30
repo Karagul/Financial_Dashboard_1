@@ -131,7 +131,7 @@ STATIC_URL = '/static/'
 BOOTSTRAP3 = {
 
     # The URL to the jQuery JavaScript file
-    'jquery_url': '/static/lib/js/jquery-3.3.1.js',
+    'jquery_url': '/static/js/jquery-3.3.1.js',
 
     # The Bootstrap base URL
     'base_url': '/static/lib/bootstrap-3.3.7-dist/',

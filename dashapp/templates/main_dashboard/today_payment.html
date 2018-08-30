@@ -1,6 +1,10 @@
-<li>
-    {{payment.document_id}} {{payment.customer}} {{payment.gross_amount_converted}}
-    <button type="button" class="btn btn-primary">
+<tr>
+    <td>
+       {{payment.name}}, {{payment.document_id}}, {{payment.project}}, {{payment.gross_amount}}
+    </td>
+    <td class="button-td">
+        <button type="button" class="btn btn-default">
         Mark as paid
-    </button>
-</li>
+        </button>
+    </td>
+</tr>
