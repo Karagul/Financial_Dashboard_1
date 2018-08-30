@@ -1,8 +1,11 @@
 from django.contrib import admin
+from dashapp.models import Customer, Project
 
-from guardian.admin import GuardedModelAdmin
 
-# class ...(GuardedModelAdmin):
-#     pass
-#
-# admin.site.register(..., ...)
+@admin.register(Customer)
+class Product(admin.ModelAdmin):
+     pass
+
+@admin.register(Project)
+class Project(admin.ModelAdmin):
+     pass

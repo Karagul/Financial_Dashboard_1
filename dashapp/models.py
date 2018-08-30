@@ -5,7 +5,6 @@ from django.db import models
 
 # ToDo: W niektórych modelach może trzeba będzie dodać firmę, do której należy element - by później ograniczyć wyświetlanie i modyfikację
 
-# Teoretycznie można rozdzielić zdarzenie od dokumentu, tworząc dwa modele z powiązaniem 1-do-1. Ale czy to ma sens?
 
 class CompanyMember(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

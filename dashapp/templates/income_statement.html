@@ -8,12 +8,10 @@
 
     </div>
     <div class="container">
-        Tu powinny być filtry miesięcy
-        Miesięce powinny byc jakoś generowane z systemu, np. bieżący + 5 ostatnich?
-        Co z przyszłymi miesiącami?
+
     </div>
     <div class="container">
-        <table class="table">
+        <table class="table" id="income-statement">
             <thead class="thead-dark">
                 <tr>
                     <th>Category</th>
@@ -24,55 +22,40 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Net revenues</td>
-                    <td class="value-format net-revenue-element">{{five_month_ago_net_revenues}}</td>
-                    <td class="value-format net-revenue-element">{{four_month_ago_net_revenues}}</td>
-                    <td class="value-format net-revenue-element">{{three_month_ago_net_revenues}}</td>
-                    <td class="value-format net-revenue-element">{{two_month_ago_net_revenues}}</td>
-                    <td class="value-format net-revenue-element">{{one_month_ago_net_revenues}}</td>
-                    <td class="value-format net-revenue-element">{{current_month_net_revenues}}</td>
-                    <td class="value-format net-revenue-element">{{total_net_revenues}}</td>
+                <tr id="row-one">
+                    <td>Revenues</td>
+                    {% for revenue in revenue_list %}
+                    <td class="value-format net-revenue-element">{{revenue}}</td>
+                    {% endfor %}
+                    <td class="value-format">{{total_net_revenues}}</td>
                 </tr>
-                <tr>
-                    <td>Net expenses</td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
+                <tr id="row-two">
+                    <td>Expenses</td>
+                    {% for expense in expense_list %}
+                    <td class="value-format net-expense-element">{{expense}}</td>
+                    {% endfor %}
+                    <td class="value-format">{{total_net_expenses}}</td>
                 </tr>
                 <tr>
                     <td>Gross profit</td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
+                    {% for gross_profit in gross_profit_list %}
+                    <td class="value-format gross-profit-element">{{gross_profit}}</td>
+                    {% endfor %}
+                    <td class="value-format">{{total_gross_profit}}</td>
                 </tr>
                 <tr>
                     <td>Tax</td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
+                    {% for tax in tax_list %}
+                    <td class="value-format tax-element">{{tax}}</td>
+                    {% endfor %}
+                    <td class="value-format">{{total_tax}}</td>
                 </tr>
                 <tr>
-                    <td>Net profit</td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
-                    <td class="value-format"></td>
+                    <td>Net profit/loss</td>
+                    {% for net_profit in net_profit_list %}
+                    <td class="value-format net-profit-element">{{net_profit}}</td>
+                    {% endfor %}
+                    <td class="value-format">{{total_net_profit}}</td>
                 </tr>
             </tbody>
         </table>

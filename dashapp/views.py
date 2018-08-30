@@ -1,10 +1,8 @@
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.utils.decorators import method_decorator
-from guardian.decorators import permission_required_or_403
-from guardian.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.http import request, HttpRequest, Http404, HttpResponseForbidden, \
     HttpResponseRedirect
@@ -20,9 +18,9 @@ from dashapp.models import Revenue, Expense, Employee, Customer, Procedure, \
     Country, PaymentType, Project, Currency, ExpenseCategory, Company, \
     CompanyMember
 from dashapp.mixins import GroupRequiredMixin
-from guardian.shortcuts import assign_perm, get_perms
 import datetime
 import calendar
+from decimal import *
 
 # ToDo: Maybe move those functions somewhere else?
 
@@ -79,7 +77,6 @@ class HomePageView(TemplateView):
 class LoginView(FormView):
     template_name = "login.html"
     form_class = LoginForm
-    # ToDo: should send user back to main page? Or to the panel perhaps?
     success_url = ""
 
     def form_valid(self, form):
@@ -88,7 +85,9 @@ class LoginView(FormView):
             password=form.cleaned_data["password"]
         )
         if user is not None:
-            login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
+            login(
+                self.request, user
+            )
             self.success_url = reverse_lazy(
                 "main-dashboard", kwargs={"pk": user.companymember.company.id}
             )
@@ -154,17 +153,12 @@ class MainRegistrationView(View):
 
             # Create a new group for this company, using its pk
             # and add permissions to the group
-            new_group = Group.objects.create(
-                name=("company_" + str(new_company.pk))
-            )
-            assign_perm("view_company", new_group, new_company)     # ToDo: To jest chyba niepotrzebne
-
+            Group.objects.create(name=("company_" + str(new_company.pk)))
 
             # Add user to groups
             Group.objects.get(pk=2).user_set.add(new_user)
-            # new_user.groups.add(new_group)          # ToDo: To jest chyba niepotrzebne
 
-            login(request, new_user, backend='django.contrib.auth.backends.ModelBackend')
+            login(request, new_user)
             return redirect(
                 reverse("main-dashboard", kwargs={"pk": new_company.id})
             )
@@ -323,7 +317,9 @@ class ManagerDashboardView(LoginRequiredMixin, TemplateView):
             current_year_end
             )
 
-        net = revenues - expenses
+        # ToDo: Tax rate should come from global company settings
+        net = round((revenues - expenses) / Decimal(1.19), 2)\
+            if revenues > expenses else revenues - expenses
 
         receipts = receipt_calculator(
             company_id,
@@ -403,6 +399,8 @@ class IncomeStatementView(
     def get_context_data(self, **kwargs):
 
         # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
+        
+        # ToDo: Covert calculations into a list perhaps
 
         company_id = self.kwargs["pk"]
 
@@ -435,6 +433,16 @@ class IncomeStatementView(
         five_month_ago_end = four_month_ago_beginning \
                             - datetime.timedelta(days=1)
 
+        period_dictionary = {
+            "year": [current_year_beginning, current_year_end],
+            "0": [current_month_beginning, current_month_end],
+            "-1": [one_month_ago_beginning, one_month_ago_end],
+            "-2": [two_month_ago_beginning, two_month_ago_end],
+            "-3": [three_month_ago_beginning, three_month_ago_end],
+            "-4": [four_month_ago_beginning, four_month_ago_end],
+            "-5": [five_month_ago_beginning, five_month_ago_end]
+        }
+
         month_list = [
             calendar.month_name[five_month_ago_beginning.month],
             calendar.month_name[four_month_ago_beginning.month],
@@ -444,43 +452,42 @@ class IncomeStatementView(
             calendar.month_name[today.month]
         ]
 
+        revenue_list = [
+            revenue_calculator(company_id, v[0], v[1])
+            for v in period_dictionary.values()
+        ]
+        expense_list = [
+            expense_calculator(company_id, v[0], v[1])
+            for v in period_dictionary.values()
+        ]
+        gross_profit_list = [
+            revenue_list[i] - expense_list[i] for i in range(len(revenue_list))
+        ]
+
+        # ToDo: take tax rate from a global company setting
+        tax_list = [
+            round(gross_profit_list[i] * Decimal(0.19), 2)
+            if revenue_list[i] > expense_list[i] else Decimal(0.00)
+            for i in range(len(gross_profit_list))
+        ]
+
+        net_profit_list = [
+            gross_profit_list[i] - tax_list[i]
+            for i in range(len(gross_profit_list))
+        ]
+
         return {
             "months": month_list,
-            "total_net_revenues" : revenue_calculator(
-                company_id,
-                current_year_beginning,
-                current_year_end
-            ),
-            "current_month_net_revenues": revenue_calculator(
-                company_id,
-                current_month_beginning,
-                current_month_end
-            ),
-            "one_month_ago_net_revenues": revenue_calculator(
-                company_id,
-                one_month_ago_beginning,
-                one_month_ago_end
-            ),
-            "two_month_ago_net_revenues": revenue_calculator(
-                company_id,
-                two_month_ago_beginning,
-                two_month_ago_end
-            ),
-            "three_month_ago_net_revenues": revenue_calculator(
-                company_id,
-                three_month_ago_beginning,
-                three_month_ago_end
-            ),
-            "four_month_ago_net_revenues": revenue_calculator(
-                company_id,
-                four_month_ago_beginning,
-                four_month_ago_end
-            ),
-            "five_month_ago_net_revenues": revenue_calculator(
-                company_id,
-                five_month_ago_beginning,
-                five_month_ago_end
-            ),
+            "total_net_revenues" : revenue_list.pop(0),
+            "revenue_list": reversed(revenue_list),
+            "total_net_expenses": expense_list.pop(0),
+            "expense_list": reversed(expense_list),
+            "total_gross_profit": gross_profit_list.pop(0),
+            "gross_profit_list": reversed(gross_profit_list),
+            "total_tax": tax_list.pop(0),
+            "tax_list": reversed(tax_list),
+            "total_net_profit": net_profit_list.pop(0),
+            "net_profit_list": reversed(net_profit_list),
         }
 
 

@@ -35,8 +35,6 @@ from dashapp.views import (
     ModifyExpenseView,
 )
 
-# ToDo: Na koniec uporządkować tą listę
-
 urlpatterns = [
 
     # Main views
