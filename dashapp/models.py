@@ -1,9 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-# ToDo: Zastanowić się gdzie dać null true
-
-# ToDo: W niektórych modelach może trzeba będzie dodać firmę, do której należy element - by później ograniczyć wyświetlanie i modyfikację
+# ToDo: After tests, consider where null=True are needed
 
 
 class CompanyMember(models.Model):
@@ -94,7 +92,7 @@ class Revenue(models.Model):
 
 class Expense(models.Model):
     name = models.CharField(max_length=120)
-    # Category to choose from another table
+    # Here category to choose from another model?
     type_description = models.CharField(max_length=120)
     procedure = models.ForeignKey("Procedure", on_delete=models.PROTECT)
     project = models.ForeignKey("Project", on_delete=models.PROTECT)
@@ -123,8 +121,8 @@ class Expense(models.Model):
 class Employee(models.Model):
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
-    type = models.CharField(max_length=80)     # Sales or administration
-    #position
+    type = models.CharField(max_length=80)
+    # Potentially position, if needed in the future
 
     company = models.ForeignKey("Company", on_delete=models.CASCADE)
 
@@ -171,7 +169,7 @@ class PaymentType(models.Model):
 
 class Project(models.Model):
     signature = models.CharField(max_length=80)
-    project_start = models.DateField(null=True)     # ToDo: Wywalić null true po testach?
+    project_start = models.DateField(null=True)     # ToDo: Remove null?
 
     owner = models.ForeignKey("Company", on_delete=models.CASCADE)
 
@@ -179,6 +177,7 @@ class Project(models.Model):
         return self.signature
 
 
+# Currencies are not bound to countries as payments are done in various curren.
 class Currency(models.Model):
     abbreviation = models.CharField(max_length=5)
 

@@ -1,12 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Sum
-from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User, Group
-from django.http import request, HttpRequest, Http404, HttpResponseForbidden, \
-    HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.http import request, HttpResponseForbidden
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
 from django.views import View
@@ -17,7 +13,6 @@ from dashapp.forms import LoginForm, UserRegisterForm, CompanyRegisterForm, \
 from dashapp.models import Revenue, Expense, Employee, Customer, Procedure, \
     Country, PaymentType, Project, Currency, ExpenseCategory, Company, \
     CompanyMember
-from dashapp.mixins import GroupRequiredMixin
 import datetime
 import calendar
 from decimal import *
@@ -138,7 +133,7 @@ class MainRegistrationView(View):
             # Create a new company
             new_company = form_company.save()
 
-            # Create a new manager-user
+            # Create a new manager-user and link to extended User-class
             new_user = User.objects.create_user(
                 username=form_manager.cleaned_data["username"],
                 password=form_manager.cleaned_data["password"],
@@ -152,7 +147,6 @@ class MainRegistrationView(View):
             )
 
             # Create a new group for this company, using its pk
-            # and add permissions to the group
             Group.objects.create(name=("company_" + str(new_company.pk)))
 
             # Add user to groups
@@ -200,7 +194,9 @@ class NewEmployeeRegistrationView(LoginRequiredMixin, View):
 
         if form.is_valid() and form.is_valid():
 
-            # Need to generate a password for user
+            # ToDo: Generate a password for user and send it via e-mail
+            # ToDo: Then the user should be able to change it at the 1st login
+            #send_mail()
             password = "temporary"
 
             # Create a new user
@@ -217,8 +213,10 @@ class NewEmployeeRegistrationView(LoginRequiredMixin, View):
                 user=new_user
             )
 
-            # Add user to groups
-            Group.objects.get(pk=form.cleaned_data["group"]).user_set.add(new_user)
+            # Add user to the company group
+            Group.objects.get(
+                pk=form.cleaned_data["group"]
+            ).user_set.add(new_user)
 
             return redirect(
                 reverse("manager-dashboard",
@@ -236,6 +234,15 @@ class NewEmployeeRegistrationView(LoginRequiredMixin, View):
 
 class MainDashboardView(LoginRequiredMixin, TemplateView):
     template_name = "main_dashboard.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if str(request.user.companymember.company.id) == self.kwargs["pk"]:
+
+            return super(MainDashboardView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
 
 
     def get_context_data(self, **kwargs):
@@ -291,6 +298,22 @@ class MainDashboardView(LoginRequiredMixin, TemplateView):
 
 class ManagerDashboardView(LoginRequiredMixin, TemplateView):
     template_name = "manager_dashboard.html"
+
+    def dispatch(self, request, *args, **kwargs):
+
+        user_groups = [
+            group for group in request.user.groups.values_list(
+                'name', flat=True
+            )
+        ]
+
+        if str(request.user.companymember.company.id) == self.kwargs["pk"]\
+                and "Managers" in user_groups:
+            return super(ManagerDashboardView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
 
     def get_context_data(self, **kwargs):
 
@@ -348,6 +371,15 @@ class RevenuesView(LoginRequiredMixin,TemplateView):
 
     template_name = "revenues.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        if str(request.user.companymember.company.id) == self.kwargs["pk"]:
+
+            return super(RevenuesView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
+
     def get_context_data(self, **kwargs):
 
         # ToDo: To powinno wyświetlać ileśtam najnowszych + filtry
@@ -365,6 +397,15 @@ class ExpensesView(LoginRequiredMixin, TemplateView):
 
     template_name = "expenses.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        if str(request.user.companymember.company.id) == self.kwargs["pk"]:
+
+            return super(ExpensesView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
+
     def get_context_data(self, **kwargs):
         return {
             "expenses": Expense.objects.all().order_by("document_date"),
@@ -378,7 +419,6 @@ class IncomeStatementView(
 ):
     template_name = "income_statement.html"
 
-    # change this dispatch into a decorator somehow?
     def dispatch(self, request, *args, **kwargs):
 
         user_groups = [
@@ -398,7 +438,7 @@ class IncomeStatementView(
 
     def get_context_data(self, **kwargs):
 
-        # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
+        # ToDo: Add filtering
         
         # ToDo: Covert calculations into a list perhaps
 
@@ -496,7 +536,6 @@ class CashFlowView(
 ):
     template_name = "cash_flow.html"
 
-    # change this dispatch into a decorator somehow?
     def dispatch(self, request, *args, **kwargs):
 
         user_groups = [
@@ -517,7 +556,7 @@ class CashFlowView(
     def get_context_data(self, **kwargs):
         # ToDo: Currently counts total revenues
 
-        # ToDo: Dodać filtrowanie po id firmy, później po okresie - od początku roku
+        # ToDo: Add filtering
 
         company_id = self.kwargs["pk"]
 
@@ -536,6 +575,15 @@ class CashFlowView(
 
 class ModificationDashboardView(LoginRequiredMixin, TemplateView):
     template_name = "modification_dashboard.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if str(request.user.companymember.company.id) == self.kwargs["pk"]:
+
+            return super(ModificationDashboardView, self).dispatch(
+                request, *args, **kwargs
+            )
+        else:
+            return HttpResponseForbidden('Forbidden.')
 
 # w Add pk to firma
 

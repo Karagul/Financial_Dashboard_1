@@ -128,7 +128,7 @@
             </div>
             <div class="modal-body">
                 <span>Don't have an account? <a
-                        href="#">Sign Up Here</a></span>
+                        href="{% url 'registration' %}">Sign Up Here</a></span>
                 <form action="{% url 'login' %}" method="post">
                     {% csrf_token %}
                     {% bootstrap_form global_login_form %}
