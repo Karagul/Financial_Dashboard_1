@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
-from django.http import request, HttpResponseForbidden
+from django.http import request, HttpResponseForbidden, HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
@@ -711,3 +711,30 @@ class ModifyExpenseView(LoginRequiredMixin, UpdateView):
         new_document.company = Company.objects.get(pk=self.temp_pk)
         new_document.save()
         return super(ModifyExpenseView, self).form_valid(form)
+
+
+class MarkPaidView(View):
+    # document_data = None
+    #
+    # def dispatch(self, request, *args, **kwargs):
+    #     self.document_data = Expense.objects.get(pk=self.kwargs["pk"])
+    #     if request.user.companymember.company.id \
+    #             == self.document_data.company.id:
+    #
+    #         return super(MarkPaidView, self).dispatch(
+    #                 request, *args, **kwargs
+    #             )
+    #     else:
+    #         return HttpResponseForbidden('Forbidden.')
+
+    def get(self, request, pk):
+        document_data = Expense.objects.get(pk=pk)
+        if request.user.companymember.company.id \
+                == document_data.company.id:
+            document_data.settlement_status = True
+            document_data.save()
+            return HttpResponse(reverse(
+                "main-dashboard", kwargs={"pk": pk}
+            ))
+        else:
+            return HttpResponseForbidden('Forbidden.')

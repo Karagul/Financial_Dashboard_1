@@ -13,6 +13,11 @@ GROUPS = (
     (2, Group.objects.get(pk=2))
 )
 
+TRUE_FALSE_SELECT = (
+    (True, 'Paid'),
+    (False, 'Unpaid')
+)
+
 # General forms
 
 class LoginForm(forms.Form):
@@ -78,12 +83,24 @@ class AddRevenueForm(ModelForm):
     class Meta:
         model = Revenue
         exclude = ("company",)
+        widgets = {
+            "document_date": forms.SelectDateWidget,
+            "payment_deadline": forms.SelectDateWidget,
+            "actual_payment_date": forms.SelectDateWidget,
+            "settlement_status": forms.Select(choices=TRUE_FALSE_SELECT)
+        }
 
 
 class AddExpenseForm(ModelForm):
     class Meta:
         model = Expense
         exclude = ("company",)
+        widgets = {
+            "document_date": forms.SelectDateWidget,
+            "payment_deadline": forms.SelectDateWidget,
+            "actual_payment_date": forms.SelectDateWidget,
+            "settlement_status": forms.Select(choices=TRUE_FALSE_SELECT)
+        }
 
 
 
@@ -91,9 +108,21 @@ class ModifyRevenueForm(ModelForm):
     class Meta:
         model = Revenue
         exclude = ("company",)
+        widgets = {
+            "document_date": forms.SelectDateWidget,
+            "payment_deadline": forms.SelectDateWidget,
+            "actual_payment_date": forms.SelectDateWidget,
+            "settlement_status": forms.Select(choices=TRUE_FALSE_SELECT)
+        }
 
 
 class ModifyExpenseForm(ModelForm):
     class Meta:
         model = Expense
         exclude = ("company",)
+        widgets = {
+            "document_date": forms.SelectDateWidget,
+            "payment_deadline": forms.SelectDateWidget,
+            "actual_payment_date": forms.SelectDateWidget,
+            "settlement_status": forms.Select(choices=TRUE_FALSE_SELECT)
+        }

@@ -33,6 +33,7 @@ from dashapp.views import (
     AddExpenseView,
     ModifyRevenueView,
     ModifyExpenseView,
+    MarkPaidView,
 )
 
 urlpatterns = [
@@ -88,6 +89,11 @@ urlpatterns = [
         AddExpenseView.as_view(),
         name="add-expense"
     ),
+    re_path(
+        r"^mark-paid/(?P<pk>(\d)+)/?$",
+        MarkPaidView.as_view(),
+        name="mark-paid"
+    ),
 
     # Manager views
 
@@ -111,6 +117,4 @@ urlpatterns = [
         NewEmployeeRegistrationView.as_view(),
         name="new-employee"
     ),
-
-
 ]

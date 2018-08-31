@@ -9,21 +9,21 @@ $(function () {
                 type: 'bar'
             },
             title: {
-                text: 'Fruit Consumption'
+                text: 'Revenues Plan & Performance'
             },
             xAxis: {
-                categories: ['Apples', 'Bananas', 'Oranges']
+                categories: ['Citizenship', 'Seeking Citizenship', 'Aid']
             },
             yAxis: {
                 title: {
-                    text: 'Fruit eaten'
+                    text: 'Revenue'
                 }
             },
             series: [{
-                name: 'Jane',
+                name: 'Plan',
                 data: [1, 0, 4]
             }, {
-                name: 'John',
+                name: 'Performance',
                 data: [5, 7, 3]
             }]
         });
@@ -62,7 +62,7 @@ $(function () {
             yAxis: {
                 allowDecimals: false,
                 title: {
-                text: 'Units'
+                text: 'Value'
                 }
             },
             xAxis: {

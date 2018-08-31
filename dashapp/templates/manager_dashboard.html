@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load bootstrap3 %}
 
-{% block title %}{{request.user.companymember.company.name}}Executive Dashboard{% endblock %}
+{% block title %}{{request.user.companymember.company.name}}Manager Dashboard{% endblock %}
 
 {% block content %}
 <div class="card-deck">
@@ -52,9 +52,28 @@
     <div class="card">
       <h5 class="card-header">Plan & Performance</h5>
       <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+          <p>Plans for the current month:</p>
+        <table class="table">
+              <tbody>
+              <tr>
+                  <td><p class="card-text"></p>Planned Revenues</td>
+                  <td class="value-format"></td>
+              </tr>
+              <tr>
+                  <td><p class="card-text"></p>Performance:</td>
+                  <td class="value-format"></td>
+              </tr>
+              <tr>
+                  <td><p class="card-text"></p>Percentage (month):</td>
+                  <td class="value-format"></td>
+              </tr>
+              <tr>
+                  <td><p class="card-text"></p>Percentage (year):</td>
+                  <td class="value-format"></td>
+              </tr>
+              </tbody>
+          </table>
+          <a href="#" class="btn btn-primary">Planning</a>
       </div>
     </div>
     <div class="card">
@@ -70,9 +89,10 @@
     <div class="card">
       <h5 class="card-header">Reports</h5>
       <div class="card-body">
-        <h5 class="card-title">Special title treatment</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <h5 class="card-title">Display information on key areas</h5>
+        <a href="#" class="btn btn-primary">Procedures</a>
+          <a href="#" class="btn btn-primary">Projects</a>
+          <a href="#" class="btn btn-primary">Salespeople</a>
       </div>
     </div>
     <div class="card">
@@ -80,7 +100,8 @@
       <div class="card-body">
         <h5 class="card-title">Special title treatment</h5>
         <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <a href="#" class="btn btn-primary">View monthly bonuses</a>
+          <a href="#" class="btn btn-default">Modify settings</a>
       </div>
     </div>
 </div>
