@@ -1,6 +1,7 @@
 # Financial Dashboard 1
 Bootcamp final project. Python/Django version of a financial dashboard I once made for a customer using MS Excel. It attempts to imitate a possible website service/application with similar features, but used by many companies and their various managers and employees. The initial version was prepared in ~7 days.
 
+Live version is available at: http://bartoszw.pythonanywhere.com
 
 # General Information
 This solution is a so-called 'executive dashboard', intended to provide a company's management staff with key information related to its performance in finance and sales areas.
@@ -15,12 +16,12 @@ Warning:
 This is more a proof-of-concept or prototype rather than an actual, working tool to be used in business environment. It is still missing several key features and there are some simplifications in place. The latter include:
 * Simplified accounting in general
 * Taxes calculated on monthly basis
-* (As of yet) no general settings for key global values (e.g. tax rates)
-* Lack of data backups
+* (As of yet) no general settings for key global values (e.g. tax rates, customers, projects etc.)
+* Lack of data backups, import/export
 
 # Key Features
 Current features:
-* Company registration and creation of respective groups and manger account
+* Company registration and creation of respective groups and a manger account
 * Employee and Manager accounts
 * Permissions, access restriction and company-groups
 * Models for documents, companies, customers and various others
@@ -30,18 +31,20 @@ Current features:
 * Initial data-tables and charts, using filtered and calculated data
 * Initial visual style using Bootstrap, including modals, navbar etc.
 * Functions for calculating and filtering documents by date
+* Shortcut for marking documents as paid, providing them current date
 
 Features to be possibly implemented in the future:
 * Proper documentation
 * Proper tests
 * Proper widgets for form fields
+* Forms creating new projects, procedures, etc. upon submission
 * Corrected selection options for form fields
 * Completed and expanded dashboards
 * Temporary password generation for created employees
 * Global company settings
 * Reports on projects, procedures, salespeople
 * Projections for future months
-* Data filters
+* Data filters by e.g. date, project/cost type
 * Search for documents
 * User modification, removal and password reset
 * Possibly a mixin for simplifying view dispatches
@@ -57,7 +60,15 @@ Features to be possibly implemented in the future:
 * JavaScript / jQuery
 * Highcharts 6.1.1 demo
 
-Bootstrap & Highcharts are used locally in dashapp/static/lib
+The live version available at http://bartoszw.pythonanywhere.com uses MySQL.
+
+Bootstrap & Highcharts are used locally in dashapp/static/lib/
+
+dashapp/static/lib/bootstrap-3.3.7-dist/
+
+dashapp/static/lib/highcharts-6.1.1/
+
+The current version requires manual set-up of key user groups (Employees, Managers) in the database. Managers group requires manual adding of permission: 'manager_access'.
 
 # Author
 Bartosz Wójcik
