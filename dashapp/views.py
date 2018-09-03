@@ -731,10 +731,11 @@ class MarkPaidView(View):
         document_data = Expense.objects.get(pk=pk)
         if request.user.companymember.company.id \
                 == document_data.company.id:
+            document_data.actual_payment_date = datetime.date.today()
             document_data.settlement_status = True
             document_data.save()
-            return HttpResponse(reverse(
-                "main-dashboard", kwargs={"pk": pk}
+            return redirect(reverse(
+                "main-dashboard", kwargs={"pk": document_data.company.id}
             ))
         else:
             return HttpResponseForbidden('Forbidden.')
